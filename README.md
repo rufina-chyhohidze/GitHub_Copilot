@@ -3,6 +3,10 @@ AI developer assistant that can ingest a repository, understand its structure, a
 
 The product combines code-aware hybrid retrieval, deterministic repository tools, and a single tool-using agent. Answers are grounded in an immutable repository snapshot and include clickable, validated source citations.
 
+## How it will work
+
+![Planned workflow: share a public GitHub project link, let Copilot prepare a saved version, ask a question, let it investigate the files, get an explanation, and click sources to check the answer.](docs/workflow.svg)
+
 ## First success criterion
 
 Given a public GitHub repository URL and a pinned commit, answer “Where is authentication implemented?” with supporting file and line citations—or explain when the inspected evidence is insufficient to establish an authentication implementation.
