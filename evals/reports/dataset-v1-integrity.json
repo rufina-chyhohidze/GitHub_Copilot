@@ -1,0 +1,21 @@
+{
+  "report_type": "dataset_integrity",
+  "dataset": "repository-qa",
+  "version": "1.0.0",
+  "sha256": "8d7c55bbe9ae97768f9b6de8162ceefc8de28f676a16b47210c93196e467b06e",
+  "verified_cases_by_source": {
+    "tiny-shop": 14,
+    "sampleproject": 3,
+    "itsdangerous": 3
+  },
+  "unverified_sources": [],
+  "checks": [
+    "Dataset schema and source references",
+    "Fixture file list and SHA-256 hashes",
+    "Public checkout commit IDs and clean working trees",
+    "Public evidence file SHA-256 hashes",
+    "Evidence line bounds and anchor text"
+  ],
+  "answer_quality_evaluated": false,
+  "repository_code_executed": false
+}

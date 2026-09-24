@@ -39,4 +39,6 @@ Architecture explanations, flow tracing, and change-impact analysis follow once 
 
 Step 1 is implemented: backend packaging, configuration, typed contracts, provider interfaces, a smoke CLI, and PostgreSQL/pgvector migration setup. See [backend setup and short explanations](backend/README.md) for commands and why each piece exists.
 
+Step 2 adds a controlled Python fixture, 20 evaluation questions, pinned public repositories, and dataset/result formats. See the [evaluation guide](evals/datasets/README.md) for validation commands and the review rubric.
+
 The future module folders include brief guides. Repository ingestion, search, AI answers, and the frontend are not implemented yet.

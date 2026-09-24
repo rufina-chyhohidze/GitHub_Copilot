@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 repo-copilot = "app.cli:main"
+repo-copilot-eval = "app.evaluation.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
@@ -32,3 +33,4 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+norecursedirs = ["fixtures"]

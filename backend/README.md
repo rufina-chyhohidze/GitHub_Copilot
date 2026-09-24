@@ -1,6 +1,6 @@
 # Backend
 
-This is the Step 1 scaffold: a CLI, validated configuration, typed contracts, and a versioned database foundation. Ingestion, search, model calls, and HTTP endpoints will be implemented in later steps.
+Steps 1 and 2 provide the backend scaffold plus evaluation fixtures, 20 labeled questions, and dataset/result formats. Ingestion, search, model calls, and HTTP endpoints will be implemented in later steps.
 
 ## Run locally
 
@@ -28,6 +28,8 @@ uv run repo-copilot smoke
 `smoke --provider` checks that provider settings exist; it does not call a model or verify credentials remotely. The provider interfaces define limits now, while enforcing those limits on real network calls belongs to the future adapters.
 
 ## Check changes
+
+Step 2 adds `uv run repo-copilot-eval` to check the local benchmark without Docker or a model. See the [dataset guide](../evals/datasets/README.md) for the rubric and optional public-source verification.
 
 From `backend/`:
 

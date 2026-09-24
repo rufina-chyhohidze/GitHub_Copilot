@@ -69,6 +69,8 @@ Completion: a clean checkout can start the database, apply migrations, and run a
 
 ### Step 2 — Create fixtures and the evaluation dataset
 
+Status: implemented. The [evaluation guide](../evals/datasets/README.md) documents 20 questions (14 development, 6 held-out), a versioned local fixture, two pinned public repositories, source verification, and the review rubric. All 20 cases were verified against their source; the backend suite passes 30 tests. This validates benchmark integrity, not model answer quality.
+
 - Create a small, controlled Python repository fixture with authentication, routes, services, models, and tests.
 - Include repeated symbol names, an indirect call, a missing feature, and source comments containing instructions the assistant must ignore.
 - Select a few small public repositories and pin their commits for realistic evaluation.
