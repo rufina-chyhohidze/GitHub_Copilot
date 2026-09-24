@@ -56,6 +56,8 @@ For a local prototype, accounts are unnecessary. Before a shared deployment, add
 
 ### Step 1 — Scaffold the backend and define contracts
 
+Status: implemented. See [backend setup](../backend/README.md) for commands and short explanations. Verified dependency installation, lint/format checks, 15 tests, Docker database startup, the initial migration, and the database smoke check.
+
 - Create `backend/pyproject.toml`, `app/`, `tests/`, and CLI entrypoints.
 - Configure formatting, linting, test execution, environment variables, and structured logging.
 - Add PostgreSQL/pgvector to Docker Compose and database migrations.

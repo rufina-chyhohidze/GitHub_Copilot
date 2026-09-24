@@ -35,4 +35,8 @@ Version 1 supports public repositories, read-only investigation, repository tree
 
 Architecture explanations, flow tracing, and change-impact analysis follow once repository Q&A meets the evaluation gates. Code modification, private repositories, pull requests, and multi-agent workflows are outside version 1.
 
-Status: design and implementation plan prepared; application implementation has not started.
+## Development
+
+Step 1 is implemented: backend packaging, configuration, typed contracts, provider interfaces, a smoke CLI, and PostgreSQL/pgvector migration setup. See [backend setup and short explanations](backend/README.md) for commands and why each piece exists.
+
+The future module folders include brief guides. Repository ingestion, search, AI answers, and the frontend are not implemented yet.
