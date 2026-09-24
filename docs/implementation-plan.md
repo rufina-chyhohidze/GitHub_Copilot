@@ -98,6 +98,8 @@ Completion: ingestion produces a reproducible manifest for a pinned commit. Inva
 
 ### Step 4 — Parse Python and generate code-aware chunks
 
+Status: implemented. See the [parsing guide](../backend/app/ingestion/PARSING.md). Verified 99 default tests and 8 PostgreSQL tests, the additive migration, and repeated parsing of the stored sampleproject snapshot (9 symbols, 4 imports, 28 chunks). Chunk budgets currently use a conservative UTF-8 byte upper bound for byte-level tokenizers; actual provider token counting belongs to the embedding adapter. Parsing results are versioned independently of source snapshots and do not mark them ready for Q&A.
+
 - Use Python AST to extract classes, functions, methods, declarations, and import syntax.
 - Preserve exact line spans, decorators, qualified names, and enclosing symbol metadata.
 - Chunk methods/functions separately. Use compact class context rather than duplicating every entire class alongside all its methods.

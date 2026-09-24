@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     max_file_bytes: int = Field(default=1048576, gt=0)
     max_source_bytes: int = Field(default=20971520, gt=0)
     max_repository_files: int = Field(default=10000, gt=0)
+    max_chunk_tokens: int = Field(default=1024, ge=4, le=32000)
+    max_snapshot_chunks: int = Field(default=50000, gt=0)
+    parsing_timeout_seconds: int = Field(default=180, gt=0)
 
     @field_validator("database_url")
     @classmethod

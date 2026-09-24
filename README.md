@@ -43,4 +43,6 @@ Step 2 adds a controlled Python fixture, 20 evaluation questions, pinned public 
 
 Step 3 adds safe public GitHub ingestion, source manifests, and immutable database snapshots. See the [ingestion guide](backend/app/ingestion/README.md) for the command and a short explanation of each component.
 
-The future module folders include brief guides. Parsing, search, AI answers, and the frontend are not implemented yet.
+Step 4 adds Python symbol/import extraction and versioned source chunks, with text fallback for other languages and malformed files. See the [parsing guide](backend/app/ingestion/PARSING.md).
+
+The future module folders include brief guides. Search, AI answers, and the frontend are not implemented yet.

@@ -3,6 +3,7 @@
 import argparse
 import json
 import logging
+from uuid import UUID
 
 from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,6 +12,7 @@ from app.config import Settings
 from app.db.health import check_database
 from app.db.session import make_engine
 from app.ingestion.clone import canonical_url, validate_ref
+from app.ingestion.parsing import parse_snapshot
 from app.ingestion.service import ingest
 from app.logging import configure_logging
 
@@ -24,10 +26,21 @@ def main() -> int:
     ingestion = commands.add_parser("ingest", help="Save source from a public GitHub commit")
     ingestion.add_argument("repo_url")
     ingestion.add_argument("--ref", default="HEAD", help="Branch, tag, or full commit SHA")
+    parsing = commands.add_parser("parse", help="Parse and chunk a stored source snapshot")
+    parsing.add_argument("snapshot_id", type=UUID)
     args = parser.parse_args()
     try:
         settings = Settings()
         configure_logging(settings.log_level)
+        if args.command == "parse":
+            engine = make_engine(settings)
+            try:
+                check_database(engine)
+                result = parse_snapshot(args.snapshot_id, settings, engine)
+            finally:
+                engine.dispose()
+            print(json.dumps(result, indent=2))
+            return 0
         if args.command == "ingest":
             url, ref = canonical_url(args.repo_url), validate_ref(args.ref)
             engine = make_engine(settings)

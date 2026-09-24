@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1–3 provide the backend scaffold, evaluation dataset, and public-repository ingestion into immutable source snapshots. Parsing, search, model calls, and HTTP endpoints will be implemented in later steps.
+Steps 1–4 provide the backend scaffold, evaluation dataset, repository ingestion, and Python parsing with source chunks. Search, model calls, and HTTP endpoints will be implemented in later steps.
 
 ## Run locally
 
@@ -33,6 +33,8 @@ Step 2 adds `uv run repo-copilot-eval` to check the local benchmark without Dock
 
 Step 3 adds `uv run repo-copilot ingest URL --ref COMMIT_OR_BRANCH`. Apply the latest migration first; see the [ingestion guide](app/ingestion/README.md) for an example, limits, and source-storage behavior. No model API key is needed.
 
+Step 4 adds `uv run repo-copilot parse SNAPSHOT_ID`. The [parsing guide](app/ingestion/PARSING.md) explains symbols, chunk sizes, fallback behavior, and versioned results.
+
 From `backend/`:
 
 ```sh
@@ -58,7 +60,7 @@ The tests check citation locations, configuration, dataset integrity, and ingest
 
 Other folders contain short descriptions of their future responsibilities. Their existence does not mean those features are implemented.
 
-The first migration enables pgvector; the second adds repositories, snapshots, and source files. Vector columns arrive once embedding dimensions are selected. Downgrading the second migration deletes those source tables, so use forward migrations for normal development; the initial migration intentionally retains the shared vector extension on downgrade.
+The migrations enable pgvector, then add source snapshots, then parsing runs and chunks. Vector columns arrive once embedding dimensions are selected. Downgrading a data-table migration deletes its tables, so use forward migrations for normal development; the initial migration intentionally retains the shared vector extension on downgrade.
 
 ## Troubleshooting
 

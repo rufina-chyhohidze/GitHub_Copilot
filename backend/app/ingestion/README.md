@@ -1,6 +1,6 @@
 # ingestion
 
-Step 3 implements acquisition and scanning. Parsing, chunking, and embeddings come next; an ingested snapshot is not yet ready for questions.
+Step 3 implements acquisition and scanning. Step 4 adds [Python parsing and code-aware chunks](PARSING.md); embeddings and question answering come later.
 
 | File | Why it exists |
 | --- | --- |
@@ -28,7 +28,7 @@ The JSON response includes repository/snapshot IDs, commit SHA, index version, i
 - `repository_snapshots`: immutable commit identity, ingestion policy version, `ingested` status, timestamps, coverage, and a per-path manifest.
 - `repository_files`: supported UTF-8 text, relative path, language, raw byte size, original-byte SHA-256, stored-text SHA-256, line count, and pending parse status.
 
-These records survive temporary-workspace cleanup. No embeddings, chunks, conversations, or jobs are created by this step. Acquisition/scanning failures publish no snapshot; detailed persistent job failures arrive in Step 9.
+These records survive temporary-workspace cleanup. The ingestion command creates no chunks, embeddings, conversations, or jobs; run the separate `parse` command for Step 4. Acquisition/scanning failures publish no snapshot; detailed persistent job failures arrive in Step 9.
 
 ## Text and exclusion policy
 

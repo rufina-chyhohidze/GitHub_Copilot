@@ -3,16 +3,24 @@
 import hashlib
 import os
 import time
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
 from app.config import Settings
-from app.db.schema import metadata, repositories, repository_files, snapshots
+from app.db.schema import (
+    code_chunks,
+    metadata,
+    parsing_runs,
+    repositories,
+    repository_files,
+    snapshots,
+)
 from app.db.session import make_engine
 from app.ingestion.clone import IngestionError
+from app.ingestion.parsing import parse_and_store
 from app.ingestion.scanner import ManifestEntry, ScanResult, StoredFile
 from app.ingestion.service import save_snapshot
 
@@ -99,3 +107,38 @@ def test_changed_content_is_never_written_over_existing_identity(connection):
     second = save(connection, scan_result=result("different\n"))
     assert first["snapshot_id"] == second["snapshot_id"]
     assert connection.execute(select(repository_files.c.content)).scalar_one() == "first\n"
+
+
+def test_parsing_runs_are_versioned_and_reused(connection):
+    snapshot = save(connection, scan_result=result("def f():\n    return 1\n"))
+    snapshot_id = UUID(snapshot["snapshot_id"])
+    first = parse_and_store(connection, snapshot_id, Settings(_env_file=None))
+    second = parse_and_store(connection, snapshot_id, Settings(_env_file=None))
+    third = parse_and_store(connection, snapshot_id, Settings(_env_file=None, max_chunk_tokens=4))
+    assert first["parsing_run_id"] == second["parsing_run_id"]
+    assert second["reused"] is True
+    assert third["parsing_run_id"] != first["parsing_run_id"]
+    assert first["symbols"] == 1 and first["files_by_status"] == {"parsed": 1}
+    assert connection.execute(select(repository_files.c.content)).scalar_one() == (
+        "def f():\n    return 1\n"
+    )
+
+
+def test_chunk_limit_rolls_back_partial_run(connection):
+    snapshot = save(connection, scan_result=result("def f():\n    return 1\n"))
+    settings = Settings(_env_file=None, max_chunk_tokens=4, max_snapshot_chunks=1)
+    with pytest.raises(ValueError, match="MAX_SNAPSHOT_CHUNKS"), connection.begin_nested():
+        parse_and_store(connection, UUID(snapshot["snapshot_id"]), settings)
+    assert connection.execute(select(func.count()).select_from(parsing_runs)).scalar_one() == 0
+    assert connection.execute(select(func.count()).select_from(code_chunks)).scalar_one() == 0
+    assert connection.execute(select(func.count()).select_from(snapshots)).scalar_one() == 1
+
+
+def test_parse_failure_is_recorded_and_text_is_chunked(connection):
+    snapshot = save(connection, scan_result=result("def broken(:\n"))
+    response = parse_and_store(connection, UUID(snapshot["snapshot_id"]), Settings(_env_file=None))
+    assert response["files_by_status"] == {"parse_error": 1}
+    assert response["chunks"] == 1
+    file = connection.execute(select(parsing_runs.c.files)).scalar_one()[0]
+    assert file["error"] == "SyntaxError at line 1"
+    assert connection.execute(select(code_chunks.c.content)).scalar_one() == "def broken(:\n"
