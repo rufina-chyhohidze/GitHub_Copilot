@@ -12,11 +12,15 @@ dependencies = [
   "pydantic-settings>=2.7,<3",
   "psycopg[binary]>=3.2,<4",
   "sqlalchemy>=2.0,<3",
+  "httpx>=0.28,<1",
+  "pgvector>=0.4,<1",
+  "tiktoken>=0.9,<1",
 ]
 
 [project.scripts]
 repo-copilot = "app.cli:main"
 repo-copilot-eval = "app.evaluation.cli:main"
+repo-copilot-retrieval-eval = "app.evaluation.retrieval:main"
 
 [dependency-groups]
 dev = ["pytest>=8,<10", "ruff>=0.11,<1"]

@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1–4 provide the backend scaffold, evaluation dataset, repository ingestion, and Python parsing with source chunks. Search, model calls, and HTTP endpoints will be implemented in later steps.
+Steps 1–5 provide the backend scaffold, evaluation dataset, ingestion, parsing, repository tools, and hybrid retrieval. Answer generation and HTTP endpoints come later; live semantic search requires embedding API configuration.
 
 ## Run locally
 
@@ -35,6 +35,8 @@ Step 3 adds `uv run repo-copilot ingest URL --ref COMMIT_OR_BRANCH`. Apply the l
 
 Step 4 adds `uv run repo-copilot parse SNAPSHOT_ID`. The [parsing guide](app/ingestion/PARSING.md) explains symbols, chunk sizes, fallback behavior, and versioned results.
 
+Step 5 adds `tree`, `read`, `search-code`, `symbols`, `find-symbol`, `embed`, and `search`. See the [retrieval guide](app/retrieval/README.md) for local commands, optional OpenAI setup, short component explanations, and baseline evaluation.
+
 From `backend/`:
 
 ```sh
@@ -60,7 +62,7 @@ The tests check citation locations, configuration, dataset integrity, and ingest
 
 Other folders contain short descriptions of their future responsibilities. Their existence does not mean those features are implemented.
 
-The migrations enable pgvector, then add source snapshots, then parsing runs and chunks. Vector columns arrive once embedding dimensions are selected. Downgrading a data-table migration deletes its tables, so use forward migrations for normal development; the initial migration intentionally retains the shared vector extension on downgrade.
+The migrations enable pgvector and add source snapshots, parsing runs, chunks, and versioned embedding caches. Downgrading a data-table migration deletes its tables, so use forward migrations for normal development; the initial migration intentionally retains the shared vector extension on downgrade.
 
 ## Troubleshooting
 

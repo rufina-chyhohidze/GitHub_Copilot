@@ -111,6 +111,8 @@ Completion: fixtures verify source spans, nested definitions, decorated methods,
 
 ### Step 5 — Build deterministic tools and hybrid retrieval
 
+Status: implementation complete; live semantic-quality evaluation awaits API configuration. See the [retrieval guide](../backend/app/retrieval/README.md). Verified 111 default tests and 14 PostgreSQL tests, including exact pgvector search, snapshot isolation, cache reuse, failure recovery, and mocked OpenAI responses. The saved [lexical development baseline](../evals/reports/lexical-development-v1.json) measured 82.1% macro relevant-file recall at ten chunks across 14 cases; this is below the later 90% target. No paid embedding calls or answer generation were performed.
+
 - Implement snapshot-scoped `get_repository_tree`, `read_file`, `search_code`, `find_symbol`, and `get_file_symbols` as ordinary services.
 - Make literal search the default; define case sensitivity and bound result size. Do not expose arbitrary shell commands as tools.
 - Generate embeddings in batches with retries and cache keys including embedding input and model version.

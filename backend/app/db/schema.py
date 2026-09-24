@@ -1,11 +1,13 @@
 """Source storage is independent of future embedding and conversation tables."""
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     JSON,
     CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Integer,
     MetaData,
     String,
@@ -97,4 +99,39 @@ code_chunks = Table(
         "AND end_char > start_char AND token_upper_bound > 0",
         name="ck_chunk_span",
     ),
+)
+
+embedding_profiles = Table(
+    "embedding_profiles",
+    metadata,
+    Column("id", String(64), primary_key=True),
+    Column("provider", String(32), nullable=False),
+    Column("model_id", Text, nullable=False),
+    Column("model_version", Text, nullable=False),
+    Column("dimensions", Integer, nullable=False),
+    Column("input_version", String(32), nullable=False),
+)
+embeddings = Table(
+    "embeddings",
+    metadata,
+    Column("profile_id", String(64), ForeignKey("embedding_profiles.id"), primary_key=True),
+    Column("input_hash", String(64), primary_key=True),
+    Column("vector", Vector(), nullable=False),
+)
+chunk_embeddings = Table(
+    "chunk_embeddings",
+    metadata,
+    Column("chunk_id", Uuid, ForeignKey("code_chunks.id"), primary_key=True),
+    Column("profile_id", String(64), primary_key=True),
+    Column("input_hash", String(64), nullable=False),
+    ForeignKeyConstraint(
+        ["profile_id", "input_hash"], ["embeddings.profile_id", "embeddings.input_hash"]
+    ),
+)
+embedding_indexes = Table(
+    "embedding_indexes",
+    metadata,
+    Column("parsing_run_id", Uuid, ForeignKey("parsing_runs.id"), primary_key=True),
+    Column("profile_id", String(64), ForeignKey("embedding_profiles.id"), primary_key=True),
+    Column("chunk_count", Integer, nullable=False),
 )

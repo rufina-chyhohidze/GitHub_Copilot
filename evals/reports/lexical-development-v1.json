@@ -1,0 +1,270 @@
+{
+  "report_type": "retrieval_baseline",
+  "dataset_id": "repository-qa",
+  "dataset_version": "1.0.0",
+  "dataset_sha256": "8d7c55bbe9ae97768f9b6de8162ceefc8de28f676a16b47210c93196e467b06e",
+  "split": "development",
+  "mode": "lexical",
+  "pipeline_version": "hybrid-v1",
+  "embedding_model": null,
+  "snapshots": {
+    "tiny-shop": "eca181aa-5f71-4f75-ba4b-c2547759adf0",
+    "sampleproject": "6996d939-9845-4ba8-8871-36d1ca684cda",
+    "itsdangerous": "bb35a74f-6e98-4ffa-a4b7-ef3a14e63cc9"
+  },
+  "parsing_runs": {
+    "tiny-shop": "6c381e6f-8c26-4cd9-b4d1-9f143e1944f0",
+    "sampleproject": "85f71f16-d0d3-4d15-8d62-94a0fa4f1d5f",
+    "itsdangerous": "b97c4490-1190-4e45-b624-3e15d5a59d36"
+  },
+  "cases": [
+    {
+      "case_id": "shop-01",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/auth.py",
+        "shop/routes.py"
+      ],
+      "retrieved_files": [
+        "README.md",
+        "shop/auth.py",
+        "shop/notes.py"
+      ],
+      "file_recall_at_10_chunks": 0.5,
+      "latency_ms": 11.49,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-02",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/repository.py"
+      ],
+      "retrieved_files": [
+        "shop/app.py",
+        "README.md",
+        "shop/admin.py",
+        "shop/events.py",
+        "shop/models.py",
+        "shop/notes.py",
+        "shop/repository.py"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 11.26,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-03",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/app.py",
+        "shop/routes.py",
+        "shop/services.py",
+        "shop/repository.py"
+      ],
+      "retrieved_files": [
+        "shop/app.py",
+        "shop/routes.py",
+        "shop/repository.py",
+        "shop/services.py",
+        "tests/test_orders.py"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 10.54,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-04",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/routes.py",
+        "shop/admin.py",
+        "shop/events.py"
+      ],
+      "retrieved_files": [
+        "shop/admin.py",
+        "shop/app.py",
+        "shop/events.py",
+        "shop/routes.py",
+        "shop/services.py"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 10.7,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-05",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/repository.py"
+      ],
+      "retrieved_files": [
+        "shop/repository.py",
+        "shop/services.py",
+        "tests/test_orders.py"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 7.5,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-06",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/services.py",
+        "shop/models.py"
+      ],
+      "retrieved_files": [
+        "README.md",
+        "shop/admin.py",
+        "shop/app.py",
+        "shop/events.py",
+        "shop/models.py",
+        "shop/notes.py",
+        "shop/repository.py"
+      ],
+      "file_recall_at_10_chunks": 0.5,
+      "latency_ms": 8.65,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-07",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/models.py",
+        "shop/services.py"
+      ],
+      "retrieved_files": [
+        "shop/models.py",
+        "shop/services.py",
+        "tests/test_orders.py"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 5.21,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-08",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/auth.py",
+        "shop/app.py"
+      ],
+      "retrieved_files": [
+        "README.md",
+        "shop/app.py",
+        "shop/notes.py",
+        "shop/admin.py",
+        "shop/events.py",
+        "shop/models.py",
+        "shop/repository.py"
+      ],
+      "file_recall_at_10_chunks": 0.5,
+      "latency_ms": 9.12,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-09",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "README.md",
+        "shop/app.py"
+      ],
+      "retrieved_files": [
+        "README.md"
+      ],
+      "file_recall_at_10_chunks": 0.5,
+      "latency_ms": 4.51,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "shop-10",
+      "source_id": "tiny-shop",
+      "expected_files": [
+        "shop/notes.py",
+        "shop/auth.py"
+      ],
+      "retrieved_files": [
+        "README.md",
+        "shop/notes.py",
+        "shop/auth.py",
+        "tests/test_orders.py"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 7.41,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "sample-01",
+      "source_id": "sampleproject",
+      "expected_files": [
+        "pyproject.toml",
+        "src/sample/__init__.py"
+      ],
+      "retrieved_files": [
+        "pyproject.toml",
+        ".github/workflows/release.yml",
+        ".github/workflows/test.yml",
+        "noxfile.py"
+      ],
+      "file_recall_at_10_chunks": 0.5,
+      "latency_ms": 8.98,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "sample-02",
+      "source_id": "sampleproject",
+      "expected_files": [
+        "pyproject.toml"
+      ],
+      "retrieved_files": [
+        "pyproject.toml",
+        ".github/workflows/release.yml",
+        ".github/workflows/test.yml",
+        "LICENSE.txt",
+        "noxfile.py"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 8.55,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "signing-01",
+      "source_id": "itsdangerous",
+      "expected_files": [
+        "src/itsdangerous/signer.py"
+      ],
+      "retrieved_files": [
+        "docs/signer.rst",
+        "src/itsdangerous/signer.py",
+        "src/itsdangerous/timed.py",
+        "tests/test_itsdangerous/test_signer.py",
+        "CHANGES.rst",
+        "docs/concepts.rst"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 16.77,
+      "input_tokens": 0
+    },
+    {
+      "case_id": "signing-02",
+      "source_id": "itsdangerous",
+      "expected_files": [
+        "src/itsdangerous/timed.py"
+      ],
+      "retrieved_files": [
+        "CHANGES.rst",
+        "src/itsdangerous/exc.py",
+        "src/itsdangerous/timed.py",
+        "tests/test_itsdangerous/test_timed.py",
+        "docs/concepts.rst",
+        "docs/exceptions.rst"
+      ],
+      "file_recall_at_10_chunks": 1,
+      "latency_ms": 13.43,
+      "input_tokens": 0
+    }
+  ],
+  "macro_file_recall_at_10_chunks": 0.8214285714285714,
+  "answer_quality_evaluated": false
+}

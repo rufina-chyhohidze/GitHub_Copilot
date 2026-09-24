@@ -34,6 +34,16 @@ class Settings(BaseSettings):
     max_chunk_tokens: int = Field(default=1024, ge=4, le=32000)
     max_snapshot_chunks: int = Field(default=50000, gt=0)
     parsing_timeout_seconds: int = Field(default=180, gt=0)
+    embedding_model_version: str = Field(default="v1", min_length=1)
+    embedding_batch_size: int = Field(default=32, ge=1, le=128)
+    embedding_token_budget: int = Field(default=200000, gt=0)
+    embedding_timeout_seconds: int = Field(default=300, gt=0)
+
+    def require_embeddings(self) -> None:
+        names = ("embedding_model_id", "embedding_dimensions", "provider_api_key")
+        missing = [f"COPILOT_{name.upper()}" for name in names if not getattr(self, name)]
+        if missing:
+            raise ValueError("Set embedding configuration: " + ", ".join(missing))
 
     @field_validator("database_url")
     @classmethod

@@ -45,4 +45,6 @@ Step 3 adds safe public GitHub ingestion, source manifests, and immutable databa
 
 Step 4 adds Python symbol/import extraction and versioned source chunks, with text fallback for other languages and malformed files. See the [parsing guide](backend/app/ingestion/PARSING.md).
 
-The future module folders include brief guides. Search, AI answers, and the frontend are not implemented yet.
+Step 5 adds repository inspection, local lexical search, and an OpenAI-backed semantic/hybrid search path with caching. See the [retrieval guide](backend/app/retrieval/README.md) for setup and the first retrieval baseline. Live semantic quality evaluation needs an API key; local search and infrastructure tests run without one.
+
+The future module folders include brief guides. AI answers and the frontend are not implemented yet.

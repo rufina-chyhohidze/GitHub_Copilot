@@ -3,7 +3,7 @@
 import hashlib
 import os
 import time
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import pytest
 from sqlalchemy import func, select
@@ -12,13 +12,11 @@ from sqlalchemy.exc import IntegrityError
 from app.config import Settings
 from app.db.schema import (
     code_chunks,
-    metadata,
     parsing_runs,
     repositories,
     repository_files,
     snapshots,
 )
-from app.db.session import make_engine
 from app.ingestion.clone import IngestionError
 from app.ingestion.parsing import parse_and_store
 from app.ingestion.scanner import ManifestEntry, ScanResult, StoredFile
@@ -28,23 +26,6 @@ pytestmark = pytest.mark.skipif(
     not os.environ.get("COPILOT_TEST_DATABASE_URL"),
     reason="Set COPILOT_TEST_DATABASE_URL to run isolated PostgreSQL storage tests",
 )
-
-
-@pytest.fixture
-def connection():
-    settings = Settings(_env_file=None, database_url=os.environ["COPILOT_TEST_DATABASE_URL"])
-    engine = make_engine(settings)
-    with engine.connect() as connection:
-        transaction = connection.begin()
-        schema = "test_ingestion_" + uuid4().hex
-        try:
-            connection.exec_driver_sql(f'CREATE SCHEMA "{schema}"')
-            connection = connection.execution_options(schema_translate_map={None: schema})
-            metadata.create_all(connection)
-            yield connection
-        finally:
-            transaction.rollback()
-    engine.dispose()
 
 
 def result(content="first\n"):

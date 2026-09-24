@@ -39,6 +39,15 @@ class TextModel(Protocol):
 
 
 class EmbeddingModel(Protocol):
+    provider: str
+    model_id: str
+    version: str
+    dimensions: int
+
+    def count_tokens(self, text: str) -> int:
+        """Count the complete input payload with the selected model's tokenizer."""
+        ...
+
     async def embed(self, texts: Sequence[str], *, limits: UsageLimits) -> EmbeddingBatch:
         """Return one vector per input in input order, enforcing configured limits."""
         ...
