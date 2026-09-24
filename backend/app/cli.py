@@ -5,11 +5,13 @@ import json
 import logging
 
 from pydantic import ValidationError
-from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.config import Settings
+from app.db.health import check_database
 from app.db.session import make_engine
+from app.ingestion.clone import canonical_url, validate_ref
+from app.ingestion.service import ingest
 from app.logging import configure_logging
 
 
@@ -19,24 +21,30 @@ def main() -> int:
     smoke = commands.add_parser("smoke", help="Validate configuration and optionally the database")
     smoke.add_argument("--database", action="store_true", help="Check migrations and pgvector")
     smoke.add_argument("--provider", action="store_true", help="Validate provider settings only")
+    ingestion = commands.add_parser("ingest", help="Save source from a public GitHub commit")
+    ingestion.add_argument("repo_url")
+    ingestion.add_argument("--ref", default="HEAD", help="Branch, tag, or full commit SHA")
     args = parser.parse_args()
     try:
         settings = Settings()
         configure_logging(settings.log_level)
+        if args.command == "ingest":
+            url, ref = canonical_url(args.repo_url), validate_ref(args.ref)
+            engine = make_engine(settings)
+            try:
+                check_database(engine)
+                result = ingest(url, ref, settings, engine)
+            finally:
+                engine.dispose()
+            logging.getLogger("app.cli").info("repository_ingested")
+            print(json.dumps(result, indent=2))
+            return 0
         if args.provider:
             settings.require_provider()
         if args.database:
             engine = make_engine(settings)
             try:
-                with engine.connect() as connection:
-                    version = connection.execute(
-                        text("SELECT extversion FROM pg_extension WHERE extname = 'vector'")
-                    ).scalar_one_or_none()
-                    revision = connection.execute(
-                        text("SELECT version_num FROM alembic_version")
-                    ).scalar_one_or_none()
-                    if not version or revision != "0001_enable_vector":
-                        raise ValueError("Database is not ready; run uv run alembic upgrade head")
+                check_database(engine)
             finally:
                 engine.dispose()
         logging.getLogger("app.cli").info("smoke_check_passed")
@@ -47,10 +55,12 @@ def main() -> int:
         parser.exit(2, f"Invalid configuration: {fields}. Check .env.example.\n")
     except ValueError as exc:
         parser.exit(2, f"{exc}\n")
+    except OSError:
+        parser.exit(2, "Ingestion filesystem error; check temporary disk space and permissions.\n")
     except SQLAlchemyError:
         parser.exit(
             2,
-            "Database check failed. Check COPILOT_DATABASE_URL, start Docker/PostgreSQL, "
+            "Database operation failed. Check COPILOT_DATABASE_URL, start Docker/PostgreSQL, "
             "and run uv run alembic upgrade head.\n",
         )
 

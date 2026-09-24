@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     max_context_tokens: int = Field(default=16000, gt=0)
     max_output_tokens: int = Field(default=2000, gt=0)
     run_timeout_seconds: int = Field(default=90, gt=0)
+    clone_timeout_seconds: int = Field(default=60, gt=0)
+    ingestion_timeout_seconds: int = Field(default=180, gt=0)
+    max_clone_bytes: int = Field(default=104857600, gt=0)
+    max_file_bytes: int = Field(default=1048576, gt=0)
+    max_source_bytes: int = Field(default=20971520, gt=0)
+    max_repository_files: int = Field(default=10000, gt=0)
 
     @field_validator("database_url")
     @classmethod

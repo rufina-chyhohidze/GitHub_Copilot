@@ -82,6 +82,8 @@ Completion: cases cover direct lookup, semantic lookup, multi-file explanation, 
 
 ### Step 3 — Implement safe ingestion and immutable snapshots
 
+Status: implemented. See the [ingestion guide](../backend/app/ingestion/README.md). Verified 74 default tests plus 5 PostgreSQL storage tests, the new migration, and two ingestions of the pinned sampleproject commit (12 files; the second reused the snapshot). Acquisition uses a temporary bare Git repository and direct blob reads instead of a checkout. Source snapshots are `ingested`, not Q&A-ready; parsing and embeddings remain future steps.
+
 - Accept canonical public GitHub HTTPS repository URLs; validate owner/repository and keep optional refs separate from URLs.
 - Invoke native Git with argument arrays, timeouts, noninteractive credentials, and no shell interpolation. Do not fetch submodules or LFS objects initially.
 - Resolve the requested ref to a commit and persist that SHA. Use a bounded temporary workspace for checkout.

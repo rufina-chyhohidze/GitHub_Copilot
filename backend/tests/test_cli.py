@@ -46,3 +46,12 @@ def test_provider_check_lists_missing_settings(monkeypatch, capsys):
     with pytest.raises(SystemExit):
         cli.main()
     assert "COPILOT_EMBEDDING_MODEL_ID" in capsys.readouterr().err
+
+
+def test_ingest_rejects_unsafe_url_before_database_or_network(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["repo-copilot", "ingest", "file:///tmp/repo"])
+    monkeypatch.setattr(cli, "make_engine", lambda *a: pytest.fail("Opened a database"))
+    with pytest.raises(SystemExit) as error:
+        cli.main()
+    assert error.value.code == 2
+    assert "https://github.com/owner/repository" in capsys.readouterr().err

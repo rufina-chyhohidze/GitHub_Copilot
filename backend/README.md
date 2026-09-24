@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1 and 2 provide the backend scaffold plus evaluation fixtures, 20 labeled questions, and dataset/result formats. Ingestion, search, model calls, and HTTP endpoints will be implemented in later steps.
+Steps 1–3 provide the backend scaffold, evaluation dataset, and public-repository ingestion into immutable source snapshots. Parsing, search, model calls, and HTTP endpoints will be implemented in later steps.
 
 ## Run locally
 
@@ -31,6 +31,8 @@ uv run repo-copilot smoke
 
 Step 2 adds `uv run repo-copilot-eval` to check the local benchmark without Docker or a model. See the [dataset guide](../evals/datasets/README.md) for the rubric and optional public-source verification.
 
+Step 3 adds `uv run repo-copilot ingest URL --ref COMMIT_OR_BRANCH`. Apply the latest migration first; see the [ingestion guide](app/ingestion/README.md) for an example, limits, and source-storage behavior. No model API key is needed.
+
 From `backend/`:
 
 ```sh
@@ -39,7 +41,7 @@ uv run ruff format --check .
 uv run pytest
 ```
 
-The tests check invalid citation locations, missing configuration, and secret-safe CLI errors. Database startup and migration verification use the separate `smoke --database` command.
+The tests check citation locations, configuration, dataset integrity, and ingestion boundaries. PostgreSQL storage tests are skipped unless `COPILOT_TEST_DATABASE_URL` is set; the ingestion guide shows how to run them. Database startup and migration verification use `smoke --database`.
 
 ## Why these pieces exist
 
@@ -56,7 +58,7 @@ The tests check invalid citation locations, missing configuration, and secret-sa
 
 Other folders contain short descriptions of their future responsibilities. Their existence does not mean those features are implemented.
 
-The first migration only enables pgvector. Repository tables will arrive with ingestion; vector columns will arrive once embedding dimensions are selected. Downgrading this initial migration intentionally retains the extension so it cannot remove shared vector data.
+The first migration enables pgvector; the second adds repositories, snapshots, and source files. Vector columns arrive once embedding dimensions are selected. Downgrading the second migration deletes those source tables, so use forward migrations for normal development; the initial migration intentionally retains the shared vector extension on downgrade.
 
 ## Troubleshooting
 

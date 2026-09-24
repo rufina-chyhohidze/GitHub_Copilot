@@ -41,4 +41,6 @@ Step 1 is implemented: backend packaging, configuration, typed contracts, provid
 
 Step 2 adds a controlled Python fixture, 20 evaluation questions, pinned public repositories, and dataset/result formats. See the [evaluation guide](evals/datasets/README.md) for validation commands and the review rubric.
 
-The future module folders include brief guides. Repository ingestion, search, AI answers, and the frontend are not implemented yet.
+Step 3 adds safe public GitHub ingestion, source manifests, and immutable database snapshots. See the [ingestion guide](backend/app/ingestion/README.md) for the command and a short explanation of each component.
+
+The future module folders include brief guides. Parsing, search, AI answers, and the frontend are not implemented yet.

@@ -18,7 +18,7 @@ class Snapshot(Contract):
     repository_id: UUID
     commit_sha: str = Field(pattern=r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
     index_version: str = Field(min_length=1)
-    status: Literal["pending", "indexing", "ready", "failed"] = "pending"
+    status: Literal["pending", "ingested", "indexing", "ready", "failed"] = "pending"
 
 
 class SourceSpan(Contract):
