@@ -1,4 +1,4 @@
-"""Retrieve evidence candidates; answer generation deliberately comes in Step 6."""
+"""Retrieve snapshot-scoped evidence candidates for search and answering."""
 
 import asyncio
 import time

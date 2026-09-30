@@ -124,6 +124,8 @@ Completion: exact identifiers and natural-language questions both retrieve expec
 
 ### Step 6 — Generate answers with validated citations
 
+Status: implemented and verified on 2026-09-30. All 149 tests pass, including 18 PostgreSQL integration tests with mocked providers; lint, formatting, database migrations, and the database smoke check pass. Live answer-quality evaluation remains pending. See the [answering guide](../backend/app/answering/README.md) for the CLI, budgets, trace format and limitations.
+
 - Build a fixed pipeline: question → hybrid retrieval → bounded file reads → evidence registry → structured answer.
 - Give the model only evidence IDs it may cite, and require explicit uncertainty where evidence is missing.
 - Validate cited IDs belong to the run and resolve to stored snapshot files with valid inclusive line bounds and matching content hashes.

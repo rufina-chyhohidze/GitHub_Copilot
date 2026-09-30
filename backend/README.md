@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1–5 provide the backend scaffold, evaluation dataset, ingestion, parsing, repository tools, and hybrid retrieval. Answer generation and HTTP endpoints come later; live semantic search requires embedding API configuration.
+Steps 1–6 provide the backend scaffold, evaluation dataset, ingestion, parsing, repository tools, hybrid retrieval, and a Q&A CLI with validated citations. HTTP endpoints come later; live semantic search and answer generation require provider configuration.
 
 ## Run locally
 
@@ -25,7 +25,7 @@ uv sync --locked
 uv run repo-copilot smoke
 ```
 
-`smoke --provider` checks that provider settings exist; it does not call a model or verify credentials remotely. The provider interfaces define limits now, while enforcing those limits on real network calls belongs to the future adapters.
+`smoke --provider` checks that provider settings exist; it does not call a model or verify credentials remotely. The embedding and answer adapters enforce configured input, output, and time budgets when making provider calls.
 
 ## Check changes
 
@@ -36,6 +36,8 @@ Step 3 adds `uv run repo-copilot ingest URL --ref COMMIT_OR_BRANCH`. Apply the l
 Step 4 adds `uv run repo-copilot parse SNAPSHOT_ID`. The [parsing guide](app/ingestion/PARSING.md) explains symbols, chunk sizes, fallback behavior, and versioned results.
 
 Step 5 adds `tree`, `read`, `search-code`, `symbols`, `find-symbol`, `embed`, and `search`. See the [retrieval guide](app/retrieval/README.md) for local commands, optional OpenAI setup, short component explanations, and baseline evaluation.
+
+Step 6 adds `ask URL QUESTION --ref COMMIT_OR_BRANCH`, with validated source citations, bounded repair, and optional JSON traces. See the [answering guide](app/answering/README.md) for provider setup, usage, and limitations. Live answer quality remains to be evaluated in Step 7.
 
 From `backend/`:
 
@@ -55,7 +57,7 @@ The tests check citation locations, configuration, dataset integrity, and ingest
 | `app/config.py` | Validate environment settings in one place and keep credentials out of displayed errors. |
 | `app/logging.py` | Emit structured JSON events that can later feed tracing and debugging tools. Never log raw settings or credentials. |
 | `app/models/contracts.py` | Define shared input/output shapes so ingestion, retrieval, and answering agree on snapshot and source identity. |
-| `app/providers/` | Define small model interfaces without selecting a provider or making paid calls yet. |
+| `app/providers/` | Define small model interfaces and bounded OpenAI adapters for embeddings and structured answers. |
 | `app/db/` | Centralize database connections and Alembic migrations so schema changes are reproducible. |
 | `app/cli.py` | Provide a quick executable check before adding the HTTP API. |
 | `tests/` | Catch boundary failures such as invalid line ranges before they reach citations. |
@@ -69,6 +71,6 @@ The migrations enable pgvector and add source snapshots, parsing runs, chunks, a
 - If Docker cannot connect, start Docker Desktop and retry `docker compose up -d --wait db` from the root.
 - If the database smoke check fails, verify `.env`, database health, and `uv run alembic upgrade head`.
 - Docker stores database files in a named volume. `docker compose stop` stops the service without deleting the data.
-- Source spans validate path shape and line ordering; checking that a file exists, that lines are in bounds, and that evidence supports an answer comes in later stages.
+- Citation validation checks stored files, snapshot identity, line bounds, and content hashes. Whether the cited evidence supports each claim still requires answer-quality evaluation.
 
 Setup references: [uv dependency locking](https://docs.astral.sh/uv/concepts/projects/sync/), [Alembic migrations](https://alembic.sqlalchemy.org/en/latest/tutorial.html), and [pgvector](https://github.com/pgvector/pgvector).

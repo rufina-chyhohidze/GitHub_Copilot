@@ -47,4 +47,6 @@ Step 4 adds Python symbol/import extraction and versioned source chunks, with te
 
 Step 5 adds repository inspection, local lexical search, and an OpenAI-backed semantic/hybrid search path with caching. See the [retrieval guide](backend/app/retrieval/README.md) for setup and the first retrieval baseline. Live semantic quality evaluation needs an API key; local search and infrastructure tests run without one.
 
-The future module folders include brief guides. AI answers and the frontend are not implemented yet.
+Step 6 adds a repository Q&A CLI with structured answers, validated citations, one bounded repair attempt, and optional JSON traces. See the [answering guide](backend/app/answering/README.md). Live answer quality remains to be measured in Step 7.
+
+The future module folders include brief guides. The frontend is not implemented yet.

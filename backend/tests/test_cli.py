@@ -55,3 +55,59 @@ def test_ingest_rejects_unsafe_url_before_database_or_network(monkeypatch, capsy
         cli.main()
     assert error.value.code == 2
     assert "https://github.com/owner/repository" in capsys.readouterr().err
+
+
+def test_ask_workflow_writes_trace(monkeypatch, capsys, tmp_path):
+    from uuid import uuid4
+
+    snapshot_id, parsing_id = str(uuid4()), str(uuid4())
+    calls = []
+
+    class Engine:
+        def dispose(self):
+            calls.append("dispose")
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "repo-copilot",
+            "ask",
+            "https://github.com/a/b",
+            "Where is auth?",
+            "--ref",
+            "a" * 40,
+            "--mode",
+            "lexical",
+            "--trace",
+            str(tmp_path / "trace.json"),
+        ],
+    )
+    monkeypatch.setattr(cli, "OpenAITextModel", lambda _: object())
+    monkeypatch.setattr(cli, "make_engine", lambda _: Engine())
+    monkeypatch.setattr(cli, "check_database", lambda _: None)
+    monkeypatch.setattr(cli, "ingest", lambda *args: {"snapshot_id": snapshot_id})
+    monkeypatch.setattr(cli, "parse_snapshot", lambda *args: {"parsing_run_id": parsing_id})
+
+    async def fake_answer(*args, **kwargs):
+        assert str(args[1]) == snapshot_id
+        assert str(kwargs["run_id"]) == parsing_id
+        return {
+            "status": "completed",
+            "commit_sha": "a" * 40,
+            "citations": [],
+            "answer": {"claims": [], "uncertainty": "Insufficient evidence"},
+        }
+
+    monkeypatch.setattr(cli, "answer", fake_answer)
+    assert cli.main() == 0
+    assert calls == ["dispose"]
+    assert "Insufficient evidence" in capsys.readouterr().out
+    assert json.loads((tmp_path / "trace.json").read_text())["status"] == "completed"
+
+
+def test_ask_rejects_invalid_url_before_provider(monkeypatch):
+    monkeypatch.setattr(sys, "argv", ["repo-copilot", "ask", "file:///tmp/repo", "auth?"])
+    monkeypatch.setattr(cli, "OpenAITextModel", lambda _: pytest.fail("Provider constructed"))
+    with pytest.raises(SystemExit):
+        cli.main()
