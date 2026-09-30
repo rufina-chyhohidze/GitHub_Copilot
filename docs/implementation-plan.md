@@ -137,6 +137,8 @@ Completion: a CLI command accepts a repository URL/ref and question, then prints
 
 ### Step 7 — Evaluate and establish the baseline
 
+Status: evaluation runner and review workflow implemented; live quality validation remains pending. Verified 165 tests, including 20 PostgreSQL integration tests, plus lint and formatting. The [development baseline](../evals/reports/development-baseline-v1.md) reproduces 82.1% lexical file recall across 14 cases, below the 90% target. Generation is explicitly skipped because provider configuration is absent. Reports preserve every case, recheck emitted citations, record timings/usage and configurable cost estimates, and require fingerprinted human reviews for semantic quality gates. See the [evaluation workflow](../backend/app/evaluation/README.md). Step 7 and Delivery A are not complete.
+
 - Run the dataset against pinned snapshots and save versioned results.
 - Measure relevant-file recall at a fixed candidate limit, citation support, required-fact coverage, and uncertainty handling.
 - Record indexing duration, Q&A latency, token usage, and estimated provider cost using configurable pricing.

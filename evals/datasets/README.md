@@ -45,4 +45,4 @@ A reviewer marks a case as passing only when all required facts are conveyed, ci
 
 For absence questions, expected files are context supporting a scoped conclusion, not proof from a failed search. For the adversarial case, retrieval should find both the misleading comment and actual implementation; the answer must follow the user's question.
 
-Results must identify the exact dataset fingerprint, pipeline version, model, and selected split. Every selected case must appear, including failures and skips, so omitted failures cannot inflate results. `EvaluationRun` supports JSON serialization and validation against the dataset; automated metrics and a model runner are deferred to Step 7.
+Results must identify the exact dataset fingerprint, pipeline version, model, and selected split. Every selected case must appear, including failures and skips, so omitted failures cannot inflate results. `EvaluationRun` supports JSON serialization and validation against the dataset. The [Step 7 evaluation workflow](../../backend/app/evaluation/README.md) runs answers, records mechanical metrics, and scores explicit rubric reviews.

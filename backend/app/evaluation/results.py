@@ -1,4 +1,4 @@
-"""Output format for future runs; an unreviewed answer is never a passing result."""
+"""Versioned answer-run output; an unreviewed answer is never a passing result."""
 
 from typing import Literal
 

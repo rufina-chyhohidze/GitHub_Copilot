@@ -70,10 +70,11 @@ def prepare_sources(dataset, engine, settings) -> dict:
     return prepared
 
 
-async def evaluate(
-    dataset, engine, settings, snapshot_ids, split="development", mode="lexical", provider=None
-):
+def validate_snapshots(dataset, engine, snapshot_ids, split):
+    """Pin parsing runs only after checking the benchmark's stored source identity."""
     cases = [case for case in dataset.cases if case.split == split]
+    if not cases:
+        raise ValueError("The selected split has no evaluation cases")
     needed = {case.source_id for case in cases}
     if needed - snapshot_ids.keys():
         raise ValueError("Supply every source in the selected split: " + ", ".join(sorted(needed)))
@@ -97,8 +98,17 @@ async def evaluate(
             if any(files.get(path) != digest for path, digest in source.files.items()):
                 raise ValueError(f"Snapshot source hash mismatch for {source.id}")
             runs[source.id] = tools.run["id"]
-        if mode != "lexical":
-            await build_index(engine, snapshot_ids[source.id], settings, provider, runs[source.id])
+    return runs
+
+
+async def evaluate(
+    dataset, engine, settings, snapshot_ids, split="development", mode="lexical", provider=None
+):
+    runs = validate_snapshots(dataset, engine, snapshot_ids, split)
+    cases = [case for case in dataset.cases if case.split == split]
+    if mode != "lexical":
+        for source_id, run_id in runs.items():
+            await build_index(engine, snapshot_ids[source_id], settings, provider, run_id)
     results = []
     for case in cases:
         response = await retrieve(
