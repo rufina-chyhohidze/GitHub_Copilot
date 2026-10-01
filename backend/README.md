@@ -37,9 +37,9 @@ Step 4 adds `uv run repo-copilot parse SNAPSHOT_ID`. The [parsing guide](app/ing
 
 Step 5 adds `tree`, `read`, `search-code`, `symbols`, `find-symbol`, `embed`, and `search`. See the [retrieval guide](app/retrieval/README.md) for local commands, optional OpenAI setup, short component explanations, and baseline evaluation.
 
-Step 6 adds `ask URL QUESTION --ref COMMIT_OR_BRANCH`, with validated source citations, bounded repair, and optional JSON traces. See the [answering guide](app/answering/README.md) for provider setup, usage, and limitations. Live answer quality remains to be evaluated in Step 7.
+Step 6 adds `ask URL QUESTION --ref COMMIT_OR_BRANCH`, with validated source citations, bounded repair or completeness review, and optional JSON traces. See the [answering guide](app/answering/README.md) for provider setup, usage, and limitations.
 
-Step 7 adds `repo-copilot-answer-eval` for baseline runs, usage/cost reporting, citation rechecks, and explicit rubric review. See the [evaluation workflow](app/evaluation/README.md). The saved development measurement is retrieval-only; live generation and quality-gate review require provider configuration.
+Step 7 adds `repo-copilot-answer-eval` for baseline runs, usage/cost reporting, citation rechecks, and explicit rubric review. See the [evaluation workflow](app/evaluation/README.md) and [saved live development results](../evals/reports/development-live-v4.md). Human quality review remains pending; AI assessments cannot grant acceptance.
 
 From `backend/`:
 

@@ -25,7 +25,7 @@ Optional `--pricing rates.json` reads USD rates per million tokens with keys `in
 
 ## Review answers
 
-The review template contains the report fingerprint, a reviewer name to fill in, and a null entry for every selected case. Replace each answered case's null with an assessment:
+The review template contains the report fingerprint, a reviewer name to fill in, `kind: unspecified`, and a null entry for every selected case. Set `kind` to `human` for a human rubric assessment or `ai` for a preliminary automated assessment. Existing reviews without this field remain `unspecified` and cannot count as human sign-off. Replace each answered case's null with an assessment:
 
 ```json
 {
@@ -49,8 +49,8 @@ uv run repo-copilot-answer-eval \
 
 This command runs offline and writes the review, report fingerprint, and scored summary without modifying the original report. A review of another report, missing cases, or incomplete claim/fact arrays is rejected. Unreviewed answers never count as passes. Failed and skipped cases remain in the full-split recall, required-fact, and case-pass denominators. Confirmed coverage/pass rates are lower bounds until review is complete. Claim support is reported over reviewed claims; its gate stays unknown until all answered cases are reviewed and no cases are skipped.
 
-The gates retain the plan's thresholds: 100% citation validity, 90% file recall at ten candidate chunks, 90% reviewed claim support, 80% complete case passes, and correct uncertainty for every insufficient-evidence case. A case passes only when all its claims and required facts pass, uncertainty is correct, and forbidden claims are absent. No citations means citation validity is unknown, not 100%. Unknown gates never pass. Citation rechecks verify provenance and content hashes, not semantic support.
+The gates retain the plan's thresholds: 100% citation validity, 90% file recall at ten candidate chunks, 90% reviewed claim support, 80% complete case passes, and correct uncertainty for every insufficient-evidence case. A case passes only when all its claims and required facts pass, uncertainty is correct, and forbidden claims are absent. No citations means citation validity is unknown, not 100%. Unknown gates never pass. Citation rechecks verify provenance and content hashes, not semantic support. `quality_thresholds_met` reports the numerical result of the supplied assessment; `all_gates_pass` additionally requires complete human review. AI assessments cannot grant final acceptance.
 
 Exit codes: 0 means the requested measurement/scoring completed without case failures; 1 means a case failed, or `--require-gates` found an unmet/unknown gate; 2 means configuration, source validation, or report input failed before measurement completed. Source-preparation failures stop the run rather than fabricate per-case outcomes. Once evaluation starts, expected indexing/provider failures retain affected cases as failed results and allow the remaining cases to run.
 
-See the [development baseline analysis](../../../evals/reports/development-baseline-v1.md) for measured results and remaining work.
+See the [initial lexical baseline](../../../evals/reports/development-baseline-v1.md) and [saved live development baseline](../../../evals/reports/development-live-v4.md) for measured results and remaining work.

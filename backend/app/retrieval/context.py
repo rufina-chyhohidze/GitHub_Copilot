@@ -47,6 +47,23 @@ def assemble_context(
         start = max(1, hit["start_line"] - 3)
         end = min(len(lines), hit["end_line"] + 3)
         detail = next(item for item in tools.run["files"] if item["path"] == hit["path"])
+        # A fragment of a small file often hides the called method or model default.
+        # Expand only inside an already-retrieved file; rankings and recall stay unchanged.
+        if len(file["content"].encode()) <= 3000:
+            start, end = 1, len(lines)
+        else:
+            enclosing = [
+                symbol
+                for symbol in detail["symbols"]
+                if symbol["start_line"] <= hit["start_line"]
+                and symbol["end_line"] >= hit["end_line"]
+            ]
+            for symbol in sorted(enclosing, key=lambda s: s["end_line"] - s["start_line"]):
+                text = "\n".join(lines[symbol["start_line"] - 1 : symbol["end_line"]])
+                if len(text.encode()) <= 3000:
+                    start = min(start, symbol["start_line"])
+                    end = max(end, symbol["end_line"])
+                    break
         parents = [s for s in detail["symbols"] if s["name"] == hit["parent_name"]]
         item = {
             "chunk_id": str(hit["id"]),

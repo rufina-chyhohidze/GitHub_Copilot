@@ -52,9 +52,11 @@ def test_hybrid_answer_repair_and_controlled_failure(connection, failures):
             engine, snapshot_id, "authenticate", settings, model, provider=provider, run_id=run_id
         )
     )
-    assert model.calls == min(failures + 1, 2)
+    assert model.calls == 2
     assert result["usage"]["input_tokens"] == 100 * model.calls
     assert result["status"] == ("failed" if failures == 2 else "completed")
+    if failures:
+        assert result["attempts"][0]["validation_error"]["code"] == "unknown_evidence"
     if failures == 2:
         assert result["answer"] is None
         assert result["citations"] == []

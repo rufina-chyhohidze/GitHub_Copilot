@@ -53,6 +53,7 @@ def synthetic_report(dataset):
 def reviewed(report, dataset):
     review = baseline.review_template(report)
     review["reviewer"] = "test reviewer"
+    review["kind"] = "human"
     for case in dataset.cases:
         if case.split == "development":
             review["cases"][case.id] = {
@@ -75,6 +76,17 @@ def test_unreviewed_answers_never_pass(dataset):
     assert summary["confirmed_case_pass_rate"] == 0
     assert not summary["all_gates_pass"]
     assert baseline.summarize(report, dataset, reviewed(report, dataset))["all_gates_pass"]
+
+
+@pytest.mark.parametrize("kind", ["ai", "unspecified"])
+def test_ai_or_unspecified_review_does_not_count_as_human_signoff(dataset, kind):
+    report = synthetic_report(dataset)
+    review = reviewed(report, dataset)
+    review["kind"] = kind
+    summary = baseline.summarize(report, dataset, review)
+    assert summary["quality_thresholds_met"]
+    assert not summary["human_review_complete"]
+    assert not summary["all_gates_pass"]
 
 
 def test_reviews_measure_support_facts_and_absence_separately(dataset):

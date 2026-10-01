@@ -49,6 +49,6 @@ Step 5 adds repository inspection, local lexical search, and an OpenAI-backed se
 
 Step 6 adds a repository Q&A CLI with structured answers, validated citations, one bounded repair attempt, and optional JSON traces. See the [answering guide](backend/app/answering/README.md). Live answer quality remains to be measured in Step 7.
 
-Step 7 adds the [baseline evaluation workflow](backend/app/evaluation/README.md) with per-case traces, usage/cost estimates, citation checks, and human review. The [development report](evals/reports/development-baseline-v1.md) records 82.1% lexical file recall; live answer-quality evaluation and acceptance gates remain pending.
+Step 7 adds the [baseline evaluation workflow](backend/app/evaluation/README.md) with per-case traces, usage/cost estimates, citation checks, and human review. The [initial report](evals/reports/development-baseline-v1.md) records 82.1% lexical file recall. A [saved live hybrid run](evals/reports/development-live-v4.md) answered 14 development questions with 92.9% file recall and valid citation provenance. The resumed v4 completeness-review implementation passes local and database tests; fresh live measurement and human quality acceptance remain pending.
 
 The future module folders include brief guides. The frontend is not implemented yet.

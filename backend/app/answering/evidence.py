@@ -15,8 +15,18 @@ class Claim(Contract):
 
 
 class Draft(Contract):
-    claims: list[Claim]
-    uncertainty: str | None
+    claims: list[Claim] = Field(
+        description=(
+            "All relevant supported facts, including documented source limitations and scoped "
+            "absence statements. Each fact must cite supplied evidence."
+        )
+    )
+    uncertainty: str | None = Field(
+        description=(
+            "Remaining unknowns and search limitations. Source-backed factual statements belong "
+            "in cited claims, even when the overall answer is uncertain."
+        )
+    )
 
 
 class EvidenceRegistry:

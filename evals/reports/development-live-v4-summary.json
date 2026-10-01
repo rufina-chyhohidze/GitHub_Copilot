@@ -1,0 +1,56 @@
+{
+  "source_report": ".data/development-answers-v4.json",
+  "source_file_sha256": "0a8618a66ebc047755b315e3627fd9307b32e4431eaf55c06129fe98b1606d78",
+  "measurement_origin": "Saved live run from before the interruption; not rerun after implementation restoration.",
+  "created_at": "2026-09-30T10:39:29.405721+00:00",
+  "mode": "hybrid",
+  "embedding_profile": {
+    "id": "9a24464ab3e2b80be02e128e346edd22a771261613359f1b65e7971939a26285",
+    "provider": "openai",
+    "model_id": "text-embedding-3-small",
+    "model_version": "v",
+    "dimensions": 1536,
+    "input_version": "code-context-v1"
+  },
+  "limits": {
+    "max_context_tokens": 16000,
+    "max_output_tokens": 2000,
+    "max_tool_calls": 12,
+    "run_timeout_seconds": 90
+  },
+  "usage": {
+    "input": 57521,
+    "output": 5230,
+    "embedding": 0
+  },
+  "estimated_cost_usd": null,
+  "summary": {
+    "cases": 14,
+    "answered": 14,
+    "failed": 0,
+    "skipped": 0,
+    "reviewed": 0,
+    "macro_file_recall_at_10_chunks": 0.9285714285714286,
+    "citation_validity": 1.0,
+    "reviewed_claim_support": null,
+    "confirmed_required_fact_coverage": 0.0,
+    "confirmed_case_pass_rate": 0.0,
+    "mean_case_latency_ms": 4907.727428571467,
+    "gates": {
+      "citation_validity": true,
+      "file_recall_at_10_chunks": true,
+      "claim_support": null,
+      "case_pass_rate": null,
+      "insufficient_evidence": null
+    },
+    "review_kind": null,
+    "human_review_complete": false,
+    "quality_thresholds_met": false,
+    "all_gates_pass": false,
+    "answer_quality_evaluated": false
+  },
+  "pipeline_version": "fixed-answer-v4",
+  "model_id": "gpt-4.1-mini-2025-04-14",
+  "review_completed": 13,
+  "review_skipped_context_budget": 1
+}

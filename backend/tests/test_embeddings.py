@@ -168,3 +168,38 @@ def test_file_recall_counts_distinct_expected_files():
     from app.evaluation.retrieval import file_recall
 
     assert file_recall(["a", "b"], ["a", "a", "other"]) == 0.5
+
+
+def test_small_file_context_contains_unselected_method_body_and_respects_budget():
+    import json
+
+    from app.retrieval.context import assemble_context
+
+    content = (
+        "# setup\n" * 12 + "def create(total):\n    if total <= 0:\n        raise ValueError()\n"
+    )
+
+    class Tools:
+        run = {"files": [{"path": "service.py", "symbols": [], "imports": []}]}
+
+        def file(self, _):
+            return {"content": content, "language": "python"}
+
+    hit = {
+        "id": "1",
+        "path": "service.py",
+        "start_line": 1,
+        "end_line": 1,
+        "parent_name": None,
+        "symbol_name": None,
+        "score": 1,
+        "content": "# setup",
+        "start_char": 0,
+        "end_char": 7,
+    }
+    result = assemble_context(Tools(), [hit])
+    assert "if total <= 0" in result[0]["content"]
+    assert result[0]["end_line"] == 15
+    limited = assemble_context(Tools(), [hit], max_bytes=300)
+    assert len(json.dumps(limited, ensure_ascii=False).encode()) <= 300
+    assert not limited or limited[0]["content"] == "# setup"

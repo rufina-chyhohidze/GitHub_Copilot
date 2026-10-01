@@ -14,7 +14,7 @@ from pydantic import Field, StrictBool, ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.answering.evidence import Draft, EvidenceRegistry, render
-from app.answering.service import answer
+from app.answering.service import PIPELINE_VERSION, answer
 from app.config import PROJECT_ROOT, Settings
 from app.db.health import check_database
 from app.db.session import make_engine
@@ -55,6 +55,7 @@ class Assessment(Contract):
 class Review(Contract):
     report_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     reviewer: str = Field(min_length=1)
+    kind: Literal["human", "ai", "unspecified"] = "unspecified"
     cases: dict[str, Assessment | None]
 
 
@@ -68,6 +69,7 @@ def review_template(report):
     return {
         "report_sha256": fingerprint(report),
         "reviewer": "REPLACE_WITH_REVIEWER_NAME",
+        "kind": "unspecified",
         "cases": {row["case_id"]: None for row in report["run"]["results"]},
     }
 
@@ -104,8 +106,10 @@ def summarize(report, dataset, review=None):
     if set(details) != set(rows):
         raise ValueError("Diagnostics must include every selected case")
     assessments = {}
+    review_kind = None
     if review is not None:
         review = Review.model_validate(review)
+        review_kind = review.kind
         if review.report_sha256 != fingerprint(report) or set(review.cases) != set(rows):
             raise ValueError("Review must match the exact report and every selected case")
         for case_id, assessment in review.cases.items():
@@ -177,7 +181,12 @@ def summarize(report, dataset, review=None):
         "confirmed_case_pass_rate": passed / total,
         "mean_case_latency_ms": sum(row.latency_ms for row in rows.values()) / total,
         "gates": gates,
-        "all_gates_pass": reviewed_all and all(value is True for value in gates.values()),
+        "review_kind": review_kind,
+        "human_review_complete": reviewed_all and review_kind == "human",
+        "quality_thresholds_met": reviewed_all and all(value is True for value in gates.values()),
+        "all_gates_pass": reviewed_all
+        and review_kind == "human"
+        and all(value is True for value in gates.values()),
         "answer_quality_evaluated": bool(assessments),
     }
 
@@ -298,7 +307,7 @@ async def evaluate(
         dataset_id=dataset.id,
         dataset_version=dataset.version,
         dataset_sha256=dataset_fingerprint(dataset),
-        pipeline_version="fixed-answer-v1",
+        pipeline_version=PIPELINE_VERSION,
         model_id=(settings.model_id or "unspecified-test-model")
         if model
         else "generation-disabled",
