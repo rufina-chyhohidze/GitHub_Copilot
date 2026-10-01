@@ -42,6 +42,12 @@ class Settings(BaseSettings):
     job_max_attempts: int = Field(default=3, ge=1, le=10)
     job_retry_seconds: int = Field(default=10, ge=1, le=300)
     worker_poll_seconds: float = Field(default=2, gt=0, le=60)
+    agent_max_model_calls: int = Field(default=8, ge=2, le=30)
+    agent_input_token_budget: int = Field(default=96000, ge=1)
+    agent_output_token_budget: int = Field(default=6000, ge=1)
+    agent_tool_result_bytes: int = Field(default=6000, ge=256, le=32768)
+    agent_total_tool_bytes: int = Field(default=24000, ge=256, le=1048576)
+    agent_langsmith_enabled: bool = False
 
     def require_embeddings(self) -> None:
         names = ("embedding_model_id", "embedding_dimensions", "provider_api_key")

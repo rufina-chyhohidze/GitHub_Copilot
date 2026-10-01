@@ -39,33 +39,44 @@ INSTRUCTIONS = (
 
 
 class OpenAITextModel:
-    def __init__(self, settings, *, transport=None):
+    def __init__(
+        self,
+        settings,
+        *,
+        transport=None,
+        response_schema=Draft,
+        instructions=INSTRUCTIONS,
+        schema_name="repository_answer",
+    ):
         if not settings.model_id or not settings.provider_api_key:
             raise ValueError("Set COPILOT_MODEL_ID and COPILOT_PROVIDER_API_KEY for answers")
         self.model_id = settings.model_id
         self.key = settings.provider_api_key
         self.transport = transport
+        self.response_schema = response_schema
+        self.instructions = instructions
+        self.schema_name = schema_name
 
     async def generate(self, prompt, *, limits):
-        schema = Draft.model_json_schema()
+        schema = self.response_schema.model_json_schema()
         # The application supplies evidence IDs; source text cannot add IDs to this list.
         try:
             scope = json.loads(prompt)
             evidence_ids = [entry["id"] for entry in scope.get("evidence", [])]
         except (ValueError, TypeError, AttributeError, KeyError):
             evidence_ids = []
-        if evidence_ids:
+        if evidence_ids and self.response_schema is Draft:
             schema["$defs"]["Claim"]["properties"]["evidence_ids"]["items"]["enum"] = evidence_ids
         payload = {
             "model": self.model_id,
-            "instructions": INSTRUCTIONS,
+            "instructions": self.instructions,
             "input": prompt,
             "store": False,
             "max_output_tokens": limits.max_output_tokens,
             "text": {
                 "format": {
                     "type": "json_schema",
-                    "name": "repository_answer",
+                    "name": self.schema_name,
                     "strict": True,
                     "schema": schema,
                 }

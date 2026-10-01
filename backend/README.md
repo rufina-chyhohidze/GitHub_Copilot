@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1–9 provide the backend scaffold, evaluation datasets, ingestion, Python/JS/TS parsing, repository tools, hybrid retrieval, cited Q&A, review workflows, a FastAPI service, and a recoverable indexing worker. The saved v4 run has passed human review; fresh measurement of the current code remains pending. Live semantic search and answer generation require provider configuration.
+Steps 1–10 provide the backend scaffold, evaluation datasets, ingestion, Python/JS/TS parsing, repository tools, hybrid retrieval, cited Q&A, review workflows, a FastAPI service, a recoverable indexing worker, and an opt-in bounded agent. The saved v4 run has passed human review; fresh development measurements are recorded in the [Step 10 comparison](../evals/reports/step10-comparison.md), with new answer review pending. Live semantic search and answer generation require provider configuration.
 
 ## Run locally
 
@@ -39,11 +39,13 @@ Step 5 adds `tree`, `read`, `search-code`, `symbols`, `find-symbol`, `embed`, an
 
 Step 6 adds `ask URL QUESTION --ref COMMIT_OR_BRANCH`, with validated source citations, bounded repair or completeness review, and optional JSON traces. See the [answering guide](app/answering/README.md) for provider setup, usage, and limitations.
 
-Step 7 adds `repo-copilot-answer-eval` for baseline runs, usage/cost reporting, citation rechecks, and explicit rubric review. See the [evaluation workflow](app/evaluation/README.md) and [saved live development results](../evals/reports/development-live-v4.md). The saved v4 run passed human review on 2026-10-01; fresh measurement remains pending. AI assessments cannot grant acceptance.
+Step 7 adds `repo-copilot-answer-eval` for baseline runs, usage/cost reporting, citation rechecks, and explicit rubric review. See the [evaluation workflow](app/evaluation/README.md) and [saved live development results](../evals/reports/development-live-v4.md). The saved v4 run passed human review on 2026-10-01; new Step 10 answers still need their own quality review. AI assessments cannot grant acceptance.
 
 Step 8 extends `parse` to JavaScript, JSX, TypeScript, and TSX using Tree-sitter. `symbols` now includes imports, exports, and extraction limitations. Run `uv sync --locked` to install the grammar packages, then reparse a snapshot to create a new versioned run. See the [parsing guide](app/ingestion/PARSING.md) for supported syntax, limitations, and the web-language fixture validation command.
 
 Step 9 adds the [HTTP API](app/api/README.md) and [indexing worker](app/jobs/README.md). After `uv sync --locked` and `uv run alembic upgrade head`, run `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` and `uv run repo-copilot-worker` in separate terminals. Open `http://127.0.0.1:8000/docs` for interactive endpoints. Repository submission returns an indexing job; file browsing and HTTP Q&A require a published ready index. Existing CLI snapshots can be indexed through a worker job without overwriting their source.
+
+Step 10 adds `--pipeline agent` to `repo-copilot ask` and `"pipeline":"agent"` to HTTP Q&A. The fixed pipeline remains the default. See the [agent guide](app/agents/README.md) for tools, limits, traces and the [evaluation guide](app/evaluation/README.md) for matched comparisons.
 
 From `backend/`:
 

@@ -210,6 +210,30 @@ class RepositoryTools:
         }
 
     @bounded_result
+    def get_imports(self, path: str, limit: int = 50) -> dict:
+        self.file(path)
+        if not 1 <= limit <= 100:
+            raise ValueError("Import limit must be between 1 and 100")
+        detail = next(item for item in self.run["files"] if item["path"] == path)
+        return {
+            "path": path,
+            "imports": detail["imports"][:limit],
+            "exports": detail.get("exports", [])[:limit],
+            "resolution": "syntactic_only",
+            "resolved_module_targets": False,
+            "limitations": detail.get("limitations", []),
+            "truncated": any(len(detail.get(key, [])) > limit for key in ("imports", "exports")),
+        }
+
+    @bounded_result
+    def find_references(self, name: str, limit: int = 20) -> dict:
+        return {
+            **self.search_code(name, limit=limit),
+            "kind": "candidate_text_occurrences",
+            "confirmed_calls": False,
+        }
+
+    @bounded_result
     def find_symbol(self, name: str, limit: int = 20) -> dict:
         name = literal_query(name)
         if not 1 <= limit <= 100:

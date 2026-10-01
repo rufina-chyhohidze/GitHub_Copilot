@@ -1,6 +1,6 @@
 # Repository API
 
-Step 9 exposes repository registration, persisted indexing jobs, snapshot browsing, and the fixed Q&A pipeline through FastAPI. The API submits jobs; a separate [worker](../jobs/README.md) performs indexing. This is the local, single-user prototype. Shared-hosting authorization, conversations, streaming, and the agent remain later steps.
+Step 9 exposes repository registration, persisted indexing jobs, snapshot browsing, and Q&A pipelines through FastAPI. The API submits jobs; a separate [worker](../jobs/README.md) performs indexing. This is the local, single-user prototype. Shared-hosting authorization, conversations and streaming remain later steps.
 
 ## Start locally
 
@@ -58,7 +58,7 @@ curl -sS http://127.0.0.1:8000/snapshots/SNAPSHOT_ID/ask \
 | `GET /snapshots/{id}` | Snapshot commit, status, and ingestion coverage |
 | `GET /snapshots/{id}/tree` | Paginated immediate children, optionally under `path` |
 | `GET /snapshots/{id}/files` | Stored source with bounded inclusive line ranges |
-| `POST /snapshots/{id}/ask` | A bounded fixed-pipeline answer with validated citations |
+| `POST /snapshots/{id}/ask` | A bounded answer with validated citations; optional `pipeline: agent` |
 
 Snapshot lists default to 50 items (maximum 100), and tree lists default to 100 (maximum 500). Both use `offset` and return `next_offset`, or null at the end. Metadata pages are ordered deterministically; newly added snapshots can shift offsets. File reads retain the tool's 200-line/16-KiB limits and report truncation. Paths remain snapshot-scoped and cannot escape stored source. Source is never read from a live checkout.
 
@@ -70,6 +70,8 @@ Errors use `{"error":{"code":"...","message":"..."}}`. Invalid request fields re
 
 Only canonical public GitHub HTTPS URLs and bounded plain refs are accepted. Extra JSON fields, malformed UUIDs, out-of-range pagination, and oversized/empty questions are rejected. For current scope use the loopback startup command above; user ownership and authorization are required before shared deployment.
 
-Integration tests exercise submission → worker → ready index → file → cited answer with a fake Git source and deterministic providers, plus failed/unready paths, pagination, errors, and explicit selection of the published parsing run. This validates infrastructure, not live answer quality. Step 7 current-code evaluation remains separate.
+Integration tests exercise submission → worker → ready index → file → cited answer with a fake Git source and deterministic providers, plus failed/unready paths, pagination, errors, and explicit selection of the published parsing run. This validates infrastructure, not live answer quality. Fresh live measurements are recorded in the [Step 10 comparison](../../../evals/reports/step10-comparison.md); semantic quality review remains separate.
 
 Implementation references: [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/) and [testing](https://fastapi.tiangolo.com/tutorial/testing/).
+
+Step 10 accepts `"pipeline":"agent"` in the question body; omitted or `"fixed"` keeps the baseline. Both use the same published source identity and citation validation. See the [agent guide](../agents/README.md) for additional budgets and trace behavior.

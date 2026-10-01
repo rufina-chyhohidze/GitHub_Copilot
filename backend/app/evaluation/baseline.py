@@ -1,4 +1,4 @@
-"""Fixed-pipeline evaluation; mechanical checks never substitute for claim review."""
+"""Answer-pipeline evaluation; mechanical checks never substitute for claim review."""
 
 import argparse
 import asyncio
@@ -14,7 +14,7 @@ from pydantic import Field, StrictBool, ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.answering.evidence import Draft, EvidenceRegistry, render
-from app.answering.service import PIPELINE_VERSION, answer
+from app.answering.pipeline import answer, pipeline_version
 from app.config import PROJECT_ROOT, Settings
 from app.db.health import check_database
 from app.db.session import make_engine
@@ -203,7 +203,12 @@ async def evaluate(
     provider=None,
     pricing=None,
     preparation_ms=None,
+    pipeline="fixed",
+    planner=None,
 ):
+    version = pipeline_version(pipeline)
+    if pipeline == "agent" and model is None:
+        raise ValueError("Agent evaluation requires generation; use fixed for retrieval-only")
     if mode not in {"lexical", "hybrid"} or (mode == "hybrid" and provider is None):
         raise ValueError("Choose lexical mode or supply an embedding provider for hybrid mode")
     pricing = pricing or Pricing()
@@ -262,6 +267,8 @@ async def evaluate(
                         provider=provider,
                         mode=mode,
                         run_id=runs[case.source_id],
+                        pipeline=pipeline,
+                        planner=planner,
                     )
                     retrieval, usage = trace.get("retrieval", {}), trace["usage"]
                     citation_count = len(trace["citations"])
@@ -307,7 +314,7 @@ async def evaluate(
         dataset_id=dataset.id,
         dataset_version=dataset.version,
         dataset_sha256=dataset_fingerprint(dataset),
-        pipeline_version=PIPELINE_VERSION,
+        pipeline_version=version,
         model_id=(settings.model_id or "unspecified-test-model")
         if model
         else "generation-disabled",
@@ -339,6 +346,11 @@ async def evaluate(
                 "max_output_tokens",
                 "max_tool_calls",
                 "run_timeout_seconds",
+                "agent_max_model_calls",
+                "agent_input_token_budget",
+                "agent_output_token_budget",
+                "agent_tool_result_bytes",
+                "agent_total_tool_bytes",
             )
         },
         "usage": usage,
@@ -358,6 +370,10 @@ async def evaluate(
 def main():
     parser = argparse.ArgumentParser(prog="repo-copilot-answer-eval")
     parser.add_argument("--prepare", action="store_true")
+    parser.add_argument(
+        "--dataset", type=Path, default=PROJECT_ROOT / "evals/datasets/repository-qa-v1.json"
+    )
+    parser.add_argument("--pipeline", choices=["fixed", "agent"], default="fixed")
     parser.add_argument("--snapshot", action="append", default=[], metavar="SOURCE_ID=SNAPSHOT_ID")
     parser.add_argument("--split", choices=["development", "held_out"], default="development")
     parser.add_argument("--mode", choices=["lexical", "hybrid"], default="hybrid")
@@ -375,10 +391,14 @@ def main():
     args = parser.parse_args()
     engine = None
     try:
-        dataset = load_dataset(PROJECT_ROOT / "evals/datasets/repository-qa-v1.json")
+        dataset = load_dataset(args.dataset)
         if args.review and not args.report:
             raise ValueError("--review requires --report")
-        inputs = [path.resolve() for path in (args.report, args.review, args.pricing) if path]
+        inputs = [
+            path.resolve()
+            for path in (args.report, args.review, args.pricing, args.dataset)
+            if path
+        ]
         outputs = [path.resolve() for path in (args.output, args.review_template) if path]
         if len(outputs) != len(set(outputs)) or set(inputs) & set(outputs):
             raise ValueError("Output paths must be distinct from each other and from input files")
@@ -419,6 +439,7 @@ def main():
                     provider=provider,
                     pricing=pricing,
                     preparation_ms=preparation_ms,
+                    pipeline=args.pipeline,
                 )
             )
             output = report

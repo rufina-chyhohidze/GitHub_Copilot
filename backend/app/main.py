@@ -2,6 +2,7 @@
 
 import asyncio
 from contextlib import asynccontextmanager
+from typing import Literal
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, Query
@@ -12,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.answering.service import answer
+from app.answering.pipeline import answer
 from app.config import Settings
 from app.db.schema import index_jobs, repositories, repository_files, snapshots
 from app.db.session import make_engine
@@ -36,12 +37,18 @@ class RepositoryRequest(IndexRequest):
 
 
 class QuestionRequest(Contract):
+    pipeline: Literal["fixed", "agent"] = "fixed"
     question: str = Field(min_length=1, max_length=512)
     _question = field_validator("question")(literal_query)
 
 
 def create_app(
-    settings=None, engine=None, *, embedding_factory=OpenAIEmbeddings, text_factory=OpenAITextModel
+    settings=None,
+    engine=None,
+    *,
+    embedding_factory=OpenAIEmbeddings,
+    text_factory=OpenAITextModel,
+    planner_factory=None,
 ):
     @asynccontextmanager
     async def lifespan(app):
@@ -313,6 +320,10 @@ def create_app(
                 model,
                 provider=provider,
                 run_id=published["parsing_run_id"],
+                pipeline=body.pipeline,
+                planner=planner_factory(app.state.settings)
+                if planner_factory and body.pipeline == "agent"
+                else None,
             )
         )
         if result["status"] != "completed":

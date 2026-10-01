@@ -2,7 +2,7 @@
 
 `dataset.py` defines and loads versioned questions, source identities, and evidence spans. Its validator reads source files and checks hashes, line ranges, and anchor text without importing or running them.
 
-`results.py` defines answer-run output, including usage, errors, citations, and explicit review status. `cli.py` checks dataset integrity. `retrieval.py` prepares pinned snapshots and measures retrieval. `baseline.py` runs the fixed answering pipeline, revalidates citations against stored files, and combines mechanical measurements with explicit human review.
+`results.py` defines answer-run output, including usage, errors, citations, and explicit review status. `cli.py` checks dataset integrity. `retrieval.py` prepares pinned snapshots and measures retrieval. `baseline.py` runs either answering pipeline, revalidates citations against stored files, and combines mechanical measurements with explicit human review.
 
 ## Run a baseline
 
@@ -54,3 +54,17 @@ The gates retain the plan's thresholds: 100% citation validity, 90% file recall 
 Exit codes: 0 means the requested measurement/scoring completed without case failures; 1 means a case failed, or `--require-gates` found an unmet/unknown gate; 2 means configuration, source validation, or report input failed before measurement completed. Source-preparation failures stop the run rather than fabricate per-case outcomes. Once evaluation starts, expected indexing/provider failures retain affected cases as failed results and allow the remaining cases to run.
 
 See the [initial lexical baseline](../../../evals/reports/development-baseline-v1.md) and [saved live development baseline](../../../evals/reports/development-live-v4.md) for measured results and remaining work.
+
+## Compare fixed and agent runs
+
+Run `repo-copilot-answer-eval` twice with `--pipeline fixed` and `--pipeline agent`, identical `--snapshot SOURCE_ID=SNAPSHOT_ID` arguments, split, mode and provider settings, and distinct output/review-template paths. Agent evaluation requires generation; retrieval-only remains a fixed-pipeline diagnostic. `--dataset PATH` selects an alternative validated dataset.
+
+```sh
+uv run repo-copilot-compare \
+  --fixed ../.data/step10-fixed.json --agent ../.data/step10-agent.json \
+  --output ../evals/reports/step10-comparison.json
+```
+
+The comparison rejects mismatched source snapshots, parsing runs, datasets, splits, embedding profiles or models. Initial recall uses the same ten candidate chunks; extra inspected files are recorded separately. Usage includes planning, final generation and repair. Tool calls, model calls and per-case latency help assess overhead. This is observed latency with possible warm caches, not a cold-start benchmark.
+
+Review each run separately using its fingerprinted template, then add `--fixed-review PATH --agent-review PATH` to comparison. Until both human reviews are complete, the quality improvement is unknown. Previous approvals do not transfer to new answers. Raw Step 10 outputs and review templates live under `.data/step10-{fixed,agent}*.json`.

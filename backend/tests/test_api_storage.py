@@ -1,6 +1,7 @@
 from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
+from test_agents_storage import Planner
 from test_answering_storage import Model
 from test_jobs_storage import (  # noqa: F401
     fake_ingestion as _fake_ingestion,
@@ -23,7 +24,13 @@ def test_submit_worker_browse_and_ask_workflow(job_engine, job_settings, fake_in
     provider = TestEmbeddings()
     model = Model()
     app = create_app(
-        job_settings, job_engine, embedding_factory=lambda _: provider, text_factory=lambda _: model
+        job_settings,
+        job_engine,
+        embedding_factory=lambda _: provider,
+        text_factory=lambda _: model,
+        planner_factory=lambda _: Planner(
+            [{"action": "read_file", "path": "auth.py", "start_line": 1, "end_line": 2}]
+        ),
     )
     with TestClient(app) as client:
         response = client.post(
@@ -68,6 +75,12 @@ def test_submit_worker_browse_and_ask_workflow(job_engine, job_settings, fake_in
         assert answered.status_code == 200, answered.text
         assert answered.json()["retrieval"]["parsing_run_id"] == completed["parsing_run_id"]
         assert answered.json()["citations"][0]["source"]["snapshot_id"] == sid
+        agent = client.post(
+            f"/snapshots/{sid}/ask", json={"question": "authenticate", "pipeline": "agent"}
+        )
+        assert agent.status_code == 200, agent.text
+        assert agent.json()["pipeline_version"] == "repository-agent-v1"
+        assert agent.json()["retrieval"]["parsing_run_id"] == completed["parsing_run_id"]
         assert (
             client.post(
                 f"/repositories/{submitted['repository_id']}/index", json={"ref": "next"}

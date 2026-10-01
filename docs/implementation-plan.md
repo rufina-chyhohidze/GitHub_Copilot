@@ -137,7 +137,7 @@ Completion: a CLI command accepts a repository URL/ref and question, then prints
 
 ### Step 7 — Evaluate and establish the baseline
 
-Status: evaluation runner, bounded answer completeness review, and human-review gates implemented. The [initial lexical baseline](../evals/reports/development-baseline-v1.md) measured 82.1% file recall. A [saved live hybrid run](../evals/reports/development-live-v4.md) answered 14 development cases with 92.9% file recall and valid citation provenance. The restored v4 implementation passed 172 tests; human review recorded on 2026-10-01 passes all gates for the saved v4 run. Fresh measurement of the current implementation and held-out milestone evaluation remain pending. AI review cannot grant acceptance. See the [evaluation workflow](../backend/app/evaluation/README.md). Step 7 and Delivery A are not complete.
+Status: evaluation runner, bounded answer completeness review, and human-review gates implemented. The [initial lexical baseline](../evals/reports/development-baseline-v1.md) measured 82.1% file recall. A [saved live hybrid run](../evals/reports/development-live-v4.md) answered 14 development cases with 92.9% file recall and valid citation provenance. The restored v4 implementation passed 172 tests; human review recorded on 2026-10-01 passes all gates for the saved v4 run. Fresh development measurements are published in the [Step 10 comparison](../evals/reports/step10-comparison.md); review of those new answers and held-out milestone evaluation remain pending. AI review cannot grant acceptance. See the [evaluation workflow](../backend/app/evaluation/README.md). Step 7 and Delivery A are not complete.
 
 - Run the dataset against pinned snapshots and save versioned results.
 - Measure relevant-file recall at a fixed candidate limit, citation support, required-fact coverage, and uncertainty handling.
@@ -182,6 +182,8 @@ Status: implemented on 2026-10-01. The additive `0005_index_jobs` migration stor
 Completion: users can submit a repository, observe progress, recover from worker failure, and browse the completed snapshot without keeping a request open during indexing.
 
 ### Step 10 — Introduce the bounded repository agent
+
+Status: implemented on 2026-10-01, with 247 tests passing including PostgreSQL integration. The opt-in loop wraps snapshot-scoped services as LangChain tools, enforces resource budgets, and validates final evidence citations. Fixed remains the default. Fresh matched development runs recorded 14/14 fixed answers versus 13/14 agent answers, with one agent provider/deadline failure and higher latency/input usage. Agent quality acceptance remains pending; the historical Step 7 approval does not transfer. See the [agent guide](../backend/app/agents/README.md) and [comparison](../evals/reports/step10-comparison.md).
 
 - Wrap the existing services as LangChain tools, including semantic search and structured evidence-producing reads.
 - Start with a single agent loop. Add `get_imports` as syntactic evidence and label text-based reference searches as candidate occurrences.

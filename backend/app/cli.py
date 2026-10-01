@@ -11,7 +11,7 @@ from pydantic import ValidationError
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.answering.evidence import render
-from app.answering.service import answer
+from app.answering.pipeline import answer
 from app.config import Settings
 from app.db.health import check_database
 from app.db.session import make_engine
@@ -62,6 +62,7 @@ def main() -> int:
     asking.add_argument("question")
     asking.add_argument("--ref", default="HEAD")
     asking.add_argument("--mode", choices=["hybrid", "lexical"], default="hybrid")
+    asking.add_argument("--pipeline", choices=["fixed", "agent"], default="fixed")
     asking.add_argument("--json", action="store_true", dest="as_json")
     asking.add_argument(
         "--trace", type=Path, help="Save context, usage, timings and status as JSON"
@@ -94,6 +95,7 @@ def main() -> int:
                         provider=provider,
                         mode=args.mode,
                         run_id=run_id,
+                        pipeline=args.pipeline,
                     )
                 )
             finally:

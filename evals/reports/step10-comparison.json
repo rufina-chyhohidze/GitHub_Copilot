@@ -1,0 +1,615 @@
+{
+  "report_type": "fixed_agent_comparison",
+  "fixed_sha256": "9eae2b0649a1032fe55fc8e295b7821fe2dbf77d6a00de4ed287954ff136bdf0",
+  "agent_sha256": "bfb9f28bc44493eb93e55048bdd7ad5c4c9259d22facb589ca601059217d41f3",
+  "identity": {
+    "model_id": "gpt-4.1-mini-2025-04-14",
+    "dataset_sha256": "8d7c55bbe9ae97768f9b6de8162ceefc8de28f676a16b47210c93196e467b06e",
+    "split": "development",
+    "mode": "hybrid",
+    "embedding_profile": {
+      "id": "9a24464ab3e2b80be02e128e346edd22a771261613359f1b65e7971939a26285",
+      "provider": "openai",
+      "model_id": "text-embedding-3-small",
+      "model_version": "v",
+      "dimensions": 1536,
+      "input_version": "code-context-v1"
+    },
+    "snapshots": {
+      "tiny-shop": "eca181aa-5f71-4f75-ba4b-c2547759adf0",
+      "sampleproject": "6996d939-9845-4ba8-8871-36d1ca684cda",
+      "itsdangerous": "bb35a74f-6e98-4ffa-a4b7-ef3a14e63cc9"
+    },
+    "parsing_runs": {
+      "tiny-shop": "6c381e6f-8c26-4cd9-b4d1-9f143e1944f0",
+      "sampleproject": "85f71f16-d0d3-4d15-8d62-94a0fa4f1d5f",
+      "itsdangerous": "b97c4490-1190-4e45-b624-3e15d5a59d36"
+    },
+    "pipelines": {
+      "fixed": "fixed-answer-v4",
+      "agent": "repository-agent-v1"
+    }
+  },
+  "usage": {
+    "fixed": {
+      "input": 55695,
+      "output": 5498,
+      "embedding": 0
+    },
+    "agent": {
+      "input": 144820,
+      "output": 4436,
+      "embedding": 4
+    }
+  },
+  "summary": {
+    "fixed": {
+      "cases": 14,
+      "answered": 14,
+      "failed": 0,
+      "skipped": 0,
+      "reviewed": 0,
+      "macro_file_recall_at_10_chunks": 0.9285714285714286,
+      "citation_validity": 1.0,
+      "reviewed_claim_support": null,
+      "confirmed_required_fact_coverage": 0.0,
+      "confirmed_case_pass_rate": 0.0,
+      "mean_case_latency_ms": 6035.712199357086,
+      "gates": {
+        "citation_validity": true,
+        "file_recall_at_10_chunks": true,
+        "claim_support": null,
+        "case_pass_rate": null,
+        "insufficient_evidence": null
+      },
+      "review_kind": null,
+      "human_review_complete": false,
+      "quality_thresholds_met": false,
+      "all_gates_pass": false,
+      "answer_quality_evaluated": false
+    },
+    "agent": {
+      "cases": 14,
+      "answered": 13,
+      "failed": 1,
+      "skipped": 0,
+      "reviewed": 0,
+      "macro_file_recall_at_10_chunks": 0.9285714285714286,
+      "citation_validity": 1.0,
+      "reviewed_claim_support": null,
+      "confirmed_required_fact_coverage": 0.0,
+      "confirmed_case_pass_rate": 0.0,
+      "mean_case_latency_ms": 16567.735214285287,
+      "gates": {
+        "citation_validity": true,
+        "file_recall_at_10_chunks": true,
+        "claim_support": null,
+        "case_pass_rate": null,
+        "insufficient_evidence": null
+      },
+      "review_kind": null,
+      "human_review_complete": false,
+      "quality_thresholds_met": false,
+      "all_gates_pass": false,
+      "answer_quality_evaluated": false
+    }
+  },
+  "cases": [
+    {
+      "case_id": "shop-01",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 12188.937041999452,
+        "input_tokens": 4064,
+        "output_tokens": 685,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 4,
+        "citation_count": 3,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/auth.py",
+          "shop/notes.py",
+          "README.md",
+          "shop/routes.py",
+          "shop/app.py",
+          "shop/events.py",
+          "shop/services.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 12814.577208002447,
+        "input_tokens": 12271,
+        "output_tokens": 512,
+        "model_calls": 7,
+        "tool_calls": 7,
+        "claim_count": 4,
+        "citation_count": 2,
+        "stop_reason": "planning_call_budget",
+        "inspected_files": [
+          "shop/auth.py",
+          "shop/routes.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-02",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 4038.312999997288,
+        "input_tokens": 2827,
+        "output_tokens": 136,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 1,
+        "citation_count": 1,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/models.py",
+          "shop/admin.py",
+          "shop/app.py",
+          "shop/repository.py",
+          "shop/events.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 7004.8055830011435,
+        "input_tokens": 5686,
+        "output_tokens": 267,
+        "model_calls": 4,
+        "tool_calls": 3,
+        "claim_count": 2,
+        "citation_count": 2,
+        "stop_reason": "agent_finished",
+        "inspected_files": [
+          "shop/models.py",
+          "shop/repository.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-03",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 8961.352375001297,
+        "input_tokens": 3695,
+        "output_tokens": 756,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 5,
+        "citation_count": 4,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/routes.py",
+          "shop/app.py",
+          "tests/test_orders.py",
+          "shop/repository.py",
+          "shop/services.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 13068.38450000214,
+        "input_tokens": 11659,
+        "output_tokens": 421,
+        "model_calls": 7,
+        "tool_calls": 7,
+        "claim_count": 1,
+        "citation_count": 3,
+        "stop_reason": "planning_call_budget",
+        "inspected_files": [
+          "shop/routes.py",
+          "shop/auth.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-04",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 6411.0753749992,
+        "input_tokens": 3701,
+        "output_tokens": 520,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 3,
+        "citation_count": 2,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/admin.py",
+          "shop/events.py",
+          "shop/services.py",
+          "shop/routes.py",
+          "shop/app.py",
+          "shop/repository.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 12511.356374998286,
+        "input_tokens": 12379,
+        "output_tokens": 301,
+        "model_calls": 7,
+        "tool_calls": 7,
+        "claim_count": 1,
+        "citation_count": 1,
+        "stop_reason": "planning_call_budget",
+        "inspected_files": [
+          "shop/routes.py",
+          "shop/services.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-05",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 6647.362875002727,
+        "input_tokens": 3244,
+        "output_tokens": 252,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 2,
+        "citation_count": 1,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/repository.py",
+          "shop/services.py",
+          "tests/test_orders.py",
+          "README.md",
+          "shop/notes.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 4791.4359589995,
+        "input_tokens": 3822,
+        "output_tokens": 200,
+        "model_calls": 3,
+        "tool_calls": 2,
+        "claim_count": 2,
+        "citation_count": 1,
+        "stop_reason": "agent_finished",
+        "inspected_files": [
+          "shop/repository.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-06",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 4869.547292000789,
+        "input_tokens": 4194,
+        "output_tokens": 304,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 3,
+        "citation_count": 2,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/admin.py",
+          "shop/models.py",
+          "shop/events.py",
+          "shop/repository.py",
+          "shop/routes.py",
+          "shop/services.py",
+          "shop/app.py",
+          "README.md"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 10821.202249997441,
+        "input_tokens": 14021,
+        "output_tokens": 303,
+        "model_calls": 7,
+        "tool_calls": 7,
+        "claim_count": 1,
+        "citation_count": 3,
+        "stop_reason": "planning_call_budget",
+        "inspected_files": [
+          "shop/models.py",
+          "shop/services.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-07",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 4351.0910000004515,
+        "input_tokens": 3640,
+        "output_tokens": 344,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 2,
+        "citation_count": 2,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/models.py",
+          "shop/services.py",
+          "tests/test_orders.py",
+          "shop/repository.py",
+          "shop/app.py",
+          "shop/notes.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 10457.733667000866,
+        "input_tokens": 10447,
+        "output_tokens": 374,
+        "model_calls": 6,
+        "tool_calls": 5,
+        "claim_count": 3,
+        "citation_count": 3,
+        "stop_reason": "agent_finished",
+        "inspected_files": [
+          "shop/services.py",
+          "shop/repository.py",
+          "shop/models.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-08",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 3844.7371250003926,
+        "input_tokens": 3561,
+        "output_tokens": 263,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 2,
+        "citation_count": 3,
+        "stop_reason": null,
+        "inspected_files": [
+          "README.md",
+          "shop/app.py",
+          "shop/notes.py",
+          "shop/routes.py",
+          "shop/events.py",
+          "shop/admin.py",
+          "shop/repository.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 13432.777999998507,
+        "input_tokens": 13162,
+        "output_tokens": 342,
+        "model_calls": 7,
+        "tool_calls": 7,
+        "claim_count": 1,
+        "citation_count": 2,
+        "stop_reason": "planning_call_budget",
+        "inspected_files": [
+          "shop/auth.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-09",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 3239.33174999911,
+        "input_tokens": 3577,
+        "output_tokens": 112,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 1,
+        "citation_count": 1,
+        "stop_reason": null,
+        "inspected_files": [
+          "README.md",
+          "shop/auth.py",
+          "shop/services.py",
+          "shop/events.py",
+          "shop/repository.py",
+          "shop/routes.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 15472.961958999804,
+        "input_tokens": 12821,
+        "output_tokens": 345,
+        "model_calls": 7,
+        "tool_calls": 7,
+        "claim_count": 1,
+        "citation_count": 1,
+        "stop_reason": "planning_call_budget",
+        "inspected_files": [
+          "shop/auth.py",
+          "shop/services.py"
+        ]
+      }
+    },
+    {
+      "case_id": "shop-10",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 9848.888957996678,
+        "input_tokens": 4117,
+        "output_tokens": 985,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 8,
+        "citation_count": 3,
+        "stop_reason": null,
+        "inspected_files": [
+          "shop/auth.py",
+          "shop/notes.py",
+          "README.md",
+          "tests/test_orders.py",
+          "shop/routes.py",
+          "shop/repository.py",
+          "shop/app.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 10130.471458000102,
+        "input_tokens": 12562,
+        "output_tokens": 419,
+        "model_calls": 7,
+        "tool_calls": 7,
+        "claim_count": 2,
+        "citation_count": 1,
+        "stop_reason": "planning_call_budget",
+        "inspected_files": [
+          "shop/auth.py"
+        ]
+      }
+    },
+    {
+      "case_id": "sample-01",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 5344.328833001782,
+        "input_tokens": 5620,
+        "output_tokens": 228,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 2,
+        "citation_count": 2,
+        "stop_reason": null,
+        "inspected_files": [
+          "pyproject.toml",
+          ".github/workflows/test.yml",
+          "noxfile.py",
+          "src/sample/__init__.py",
+          ".github/workflows/release.yml",
+          "src/sample/package_data.dat"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 12019.006499998795,
+        "input_tokens": 14372,
+        "output_tokens": 355,
+        "model_calls": 7,
+        "tool_calls": 6,
+        "claim_count": 2,
+        "citation_count": 3,
+        "stop_reason": "agent_finished",
+        "inspected_files": [
+          "pyproject.toml",
+          "src/sample/__init__.py"
+        ]
+      }
+    },
+    {
+      "case_id": "sample-02",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 2786.224332998245,
+        "input_tokens": 3341,
+        "output_tokens": 177,
+        "model_calls": 1,
+        "tool_calls": null,
+        "claim_count": 2,
+        "citation_count": 2,
+        "stop_reason": null,
+        "inspected_files": [
+          "pyproject.toml",
+          "LICENSE.txt",
+          "noxfile.py",
+          ".github/workflows/release.yml"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 10015.577499998471,
+        "input_tokens": 8215,
+        "output_tokens": 282,
+        "model_calls": 4,
+        "tool_calls": 3,
+        "claim_count": 2,
+        "citation_count": 1,
+        "stop_reason": "agent_finished",
+        "inspected_files": [
+          "pyproject.toml"
+        ]
+      }
+    },
+    {
+      "case_id": "signing-01",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 6248.749125003087,
+        "input_tokens": 5370,
+        "output_tokens": 279,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 2,
+        "citation_count": 1,
+        "stop_reason": null,
+        "inspected_files": [
+          "src/itsdangerous/signer.py",
+          "docs/signer.rst",
+          "tests/test_itsdangerous/test_signer.py",
+          "src/itsdangerous/timed.py",
+          "tests/test_itsdangerous/test_timed.py"
+        ]
+      },
+      "agent": {
+        "status": "failed",
+        "latency_ms": 89739.52420799833,
+        "input_tokens": 5407,
+        "output_tokens": 110,
+        "model_calls": 4,
+        "tool_calls": 4,
+        "claim_count": 0,
+        "citation_count": 0,
+        "stop_reason": null,
+        "inspected_files": [
+          "src/itsdangerous/signer.py"
+        ]
+      }
+    },
+    {
+      "case_id": "signing-02",
+      "fixed": {
+        "status": "answered",
+        "latency_ms": 5720.031707998714,
+        "input_tokens": 4744,
+        "output_tokens": 457,
+        "model_calls": 2,
+        "tool_calls": null,
+        "claim_count": 2,
+        "citation_count": 3,
+        "stop_reason": null,
+        "inspected_files": [
+          "tests/test_itsdangerous/test_timed.py",
+          "src/itsdangerous/timed.py",
+          "src/itsdangerous/exc.py"
+        ]
+      },
+      "agent": {
+        "status": "answered",
+        "latency_ms": 9668.477832998178,
+        "input_tokens": 7996,
+        "output_tokens": 205,
+        "model_calls": 4,
+        "tool_calls": 4,
+        "claim_count": 1,
+        "citation_count": 1,
+        "stop_reason": "context_or_input_budget",
+        "inspected_files": [
+          "src/itsdangerous/timed.py"
+        ]
+      }
+    }
+  ],
+  "agent_minus_fixed": {
+    "mean_latency_ms": 10532.0230149282,
+    "input_tokens": 89125,
+    "output_tokens": -1062,
+    "confirmed_case_pass_rate": null
+  },
+  "notes": "Initial recall uses ten candidates in both pipelines; additional agent reads are reported separately. Latency is observed, not a cold-start guarantee. Quality improvement is unknown without matched human reviews."
+}
