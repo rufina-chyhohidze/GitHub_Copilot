@@ -14,7 +14,7 @@ uv run repo-copilot parse YOUR_SNAPSHOT_ID
 
 Replace `YOUR_SNAPSHOT_ID` with the `snapshot_id` returned by `repo-copilot ingest`. The command reports file, symbol, import, and chunk counts, along with fallback counts and a parsing-run ID. It reads the stored source and needs neither a network connection nor a model API key.
 
-Repeating the command with the same parser and chunk settings reuses the completed run. Changing the chunk budget or parser/chunker version creates another run while preserving earlier results and original source. Snapshots remain `ingested`, and `ready_for_qa` is false until the later indexing stages exist.
+Repeating the command with the same parser and chunk settings reuses the completed run. Changing the chunk budget or parser/chunker version creates another run while preserving earlier results and original source. Parsing alone does not publish readiness; its stage summary retains `ready_for_qa: false`. The Step 9 worker publishes a ready index only after embeddings complete. A new parsing run does not invalidate an older published run.
 
 ## Why these files exist
 

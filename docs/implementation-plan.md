@@ -170,6 +170,8 @@ Completion: supported syntax yields correct symbols and citations; unsupported c
 
 ### Step 9 — Add persisted indexing jobs and FastAPI
 
+Status: implemented on 2026-10-01. The additive `0005_index_jobs` migration stores leased jobs and exact ready-index publications. An independent worker reuses ingestion/parsing/embedding services, pins resolved commits, renews heartbeats, fences expired owners, retries bounded failures, and preserves completed caches and older ready snapshots. FastAPI exposes submission/status, paginated metadata and trees, stored-file reads, and fixed-pipeline Q&A restricted to published runs. All 229 tests pass, including 33 PostgreSQL tests; migrations, database smoke, and the worker command were verified. Integration providers are deterministic; fresh live quality evaluation remains separate. See the [API](../backend/app/api/README.md) and [worker](../backend/app/jobs/README.md) guides.
+
 - Extract the CLI ingestion stages into an independently runnable worker.
 - Claim jobs atomically with PostgreSQL locking; persist stage progress, leases, heartbeat, bounded retries, and terminal errors.
 - Recover jobs after worker termination. Keep ingestion idempotent across retries and avoid duplicate embeddings.

@@ -53,7 +53,7 @@ The adapter checks input limits, response ordering, dimensions, finite/nonzero v
 
 The database adds embedding profiles, a reusable vector cache, chunk-to-vector membership, and completed-index records. Changing the model, dimensions, input format, or configured model-version namespace creates a different profile. Cache sharing never changes which chunks belong to a snapshot. Bump the model-version namespace if an upstream model alias changes and a fresh cache is required.
 
-Whitespace-only chunks are not embedded. Repeated `embed` commands reuse a completed index; interrupted commands reuse completed cached batches. Simultaneous indexing processes may duplicate provider work before their database writes converge, so the future job worker should serialize equivalent jobs.
+Whitespace-only chunks are not embedded. Repeated `embed` commands reuse a completed index; interrupted commands reuse completed cached batches. The Step 9 worker serializes jobs for the same repository and deduplicates equivalent active submissions. Independent CLI processes or jobs for different repositories may still duplicate provider work before their cache writes converge. A provider request interrupted before its result is stored can also be charged again on retry.
 
 Embedding batches default to 32 inputs and at most 16,000 input tokens. The whole index preflight defaults to 200,000 uncached tokens and a 300-second async deadline. These are input/work limits, not a currency cap; retries can incur additional usage. Source files parsed into overly large embedding payloads must be reparsed with a smaller chunk budget.
 

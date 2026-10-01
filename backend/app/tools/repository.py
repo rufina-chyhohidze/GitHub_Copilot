@@ -84,9 +84,11 @@ class RepositoryTools:
         return file
 
     @bounded_result
-    def get_repository_tree(self, path: str = "", limit: int = 100) -> dict:
+    def get_repository_tree(self, path: str = "", limit: int = 100, offset: int = 0) -> dict:
         if not 1 <= limit <= 500:
             raise ValueError("Tree limit must be between 1 and 500")
+        if not 0 <= offset <= 1000000:
+            raise ValueError("Tree offset must be between 0 and 1000000")
         if path:
             SourceSpan.relative_path(path)
         prefix = path + "/" if path else ""
@@ -110,8 +112,9 @@ class RepositoryTools:
         ordered = [entries[key] for key in sorted(entries)]
         return {
             "snapshot_id": str(self.snapshot_id),
-            "entries": ordered[:limit],
-            "truncated": len(ordered) > limit,
+            "entries": ordered[offset : offset + limit],
+            "truncated": len(ordered) > offset + limit,
+            "next_offset": offset + limit if len(ordered) > offset + limit else None,
         }
 
     @bounded_result

@@ -1,4 +1,4 @@
-"""Source storage is independent of future embedding and conversation tables."""
+"""Persist immutable source, versioned indexes, and recoverable indexing jobs."""
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     ForeignKeyConstraint,
+    Index,
     Integer,
     MetaData,
     String,
@@ -134,4 +135,66 @@ embedding_indexes = Table(
     Column("parsing_run_id", Uuid, ForeignKey("parsing_runs.id"), primary_key=True),
     Column("profile_id", String(64), ForeignKey("embedding_profiles.id"), primary_key=True),
     Column("chunk_count", Integer, nullable=False),
+)
+
+index_jobs = Table(
+    "index_jobs",
+    metadata,
+    Column("id", Uuid, primary_key=True),
+    Column("repository_id", Uuid, ForeignKey("repositories.id"), nullable=False),
+    Column("requested_ref", String(255), nullable=False),
+    Column("resolved_commit_sha", String(64)),
+    Column("snapshot_id", Uuid, ForeignKey("repository_snapshots.id")),
+    Column("parsing_run_id", Uuid, ForeignKey("parsing_runs.id")),
+    Column("configuration", JSON, nullable=False),
+    Column("configuration_hash", String(64), nullable=False),
+    Column("status", String(20), nullable=False),
+    Column("stage", String(20), nullable=False),
+    Column("progress", Integer, nullable=False),
+    Column("attempts", Integer, nullable=False),
+    Column("max_attempts", Integer, nullable=False),
+    Column("lease_token", Uuid),
+    Column("lease_expires_at", DateTime(timezone=True)),
+    Column("heartbeat_at", DateTime(timezone=True)),
+    Column("available_at", DateTime(timezone=True), nullable=False),
+    Column("error", JSON),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+    Column("finished_at", DateTime(timezone=True)),
+    CheckConstraint("status IN ('queued', 'running', 'succeeded', 'failed')", name="ck_job_status"),
+    CheckConstraint(
+        "stage IN ('queued', 'ingesting', 'parsing', 'embedding', 'publishing', 'complete')",
+        name="ck_job_stage",
+    ),
+    CheckConstraint(
+        "progress BETWEEN 0 AND 100 AND attempts >= 0 "
+        "AND max_attempts > 0 AND attempts <= max_attempts",
+        name="ck_job_limits",
+    ),
+    CheckConstraint(
+        "(status = 'running') = (lease_token IS NOT NULL AND lease_expires_at IS NOT NULL)",
+        name="ck_job_lease",
+    ),
+)
+Index("ix_job_claim", index_jobs.c.status, index_jobs.c.available_at, index_jobs.c.created_at)
+Index(
+    "uq_active_index_job",
+    index_jobs.c.repository_id,
+    index_jobs.c.requested_ref,
+    index_jobs.c.configuration_hash,
+    unique=True,
+    postgresql_where=index_jobs.c.status.in_(["queued", "running"]),
+)
+
+ready_indexes = Table(
+    "ready_indexes",
+    metadata,
+    Column("snapshot_id", Uuid, ForeignKey("repository_snapshots.id"), primary_key=True),
+    Column("parsing_run_id", Uuid, primary_key=True),
+    Column("profile_id", String(64), primary_key=True),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    ForeignKeyConstraint(
+        ["parsing_run_id", "profile_id"],
+        ["embedding_indexes.parsing_run_id", "embedding_indexes.profile_id"],
+    ),
 )

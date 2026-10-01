@@ -95,9 +95,11 @@ def save_snapshot(
     }
 
 
-def ingest(url: str, ref: str, settings: Settings, engine: Engine) -> dict:
+def ingest(url: str, ref: str, settings: Settings, engine: Engine, *, on_resolved=None) -> dict:
     url, ref = canonical_url(url), validate_ref(ref)
     with acquire(url, ref, settings) as source:
+        if on_resolved is not None:
+            on_resolved(source.commit_sha)
         result = scan(source)
         source.check_deadline()
         with engine.begin() as connection:

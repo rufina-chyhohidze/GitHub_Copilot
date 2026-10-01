@@ -53,4 +53,6 @@ Step 7 adds the [baseline evaluation workflow](backend/app/evaluation/README.md)
 
 The future module folders include brief guides. The frontend is not implemented yet.
 
-Step 8 adds [JavaScript/TypeScript parsing](backend/app/ingestion/PARSING.md), ES import/export metadata, visible extraction limitations, and a separate six-question web-language dataset. All 210 tests pass, including PostgreSQL storage and citation checks. This extends language support while fresh Step 7 measurement remains pending; web-language model quality is not yet measured. The next planned implementation is Step 9: persisted indexing jobs and FastAPI.
+Step 8 adds [JavaScript/TypeScript parsing](backend/app/ingestion/PARSING.md), ES import/export metadata, visible extraction limitations, and a separate six-question web-language dataset. This extends language support while fresh Step 7 measurement remains pending; web-language model quality is not yet measured.
+
+Step 9 adds the [FastAPI service](backend/app/api/README.md) and [persisted indexing worker](backend/app/jobs/README.md). Submit a repository, poll its job, browse a published snapshot, and ask a cited question. Jobs have heartbeats, bounded retries, and recovery; failed replacement indexes preserve existing ready snapshots. All 229 tests pass, including 33 PostgreSQL integration tests. The next planned implementation is Step 10: the bounded repository agent.

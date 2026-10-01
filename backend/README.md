@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1–8 provide the backend scaffold, evaluation datasets, ingestion, Python/JS/TS parsing, repository tools, hybrid retrieval, a Q&A CLI with validated citations, and quality-review workflows. The saved v4 run has passed human review; fresh measurement of the current code remains pending. HTTP endpoints come later; live semantic search and answer generation require provider configuration.
+Steps 1–9 provide the backend scaffold, evaluation datasets, ingestion, Python/JS/TS parsing, repository tools, hybrid retrieval, cited Q&A, review workflows, a FastAPI service, and a recoverable indexing worker. The saved v4 run has passed human review; fresh measurement of the current code remains pending. Live semantic search and answer generation require provider configuration.
 
 ## Run locally
 
@@ -43,6 +43,8 @@ Step 7 adds `repo-copilot-answer-eval` for baseline runs, usage/cost reporting, 
 
 Step 8 extends `parse` to JavaScript, JSX, TypeScript, and TSX using Tree-sitter. `symbols` now includes imports, exports, and extraction limitations. Run `uv sync --locked` to install the grammar packages, then reparse a snapshot to create a new versioned run. See the [parsing guide](app/ingestion/PARSING.md) for supported syntax, limitations, and the web-language fixture validation command.
 
+Step 9 adds the [HTTP API](app/api/README.md) and [indexing worker](app/jobs/README.md). After `uv sync --locked` and `uv run alembic upgrade head`, run `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` and `uv run repo-copilot-worker` in separate terminals. Open `http://127.0.0.1:8000/docs` for interactive endpoints. Repository submission returns an indexing job; file browsing and HTTP Q&A require a published ready index. Existing CLI snapshots can be indexed through a worker job without overwriting their source.
+
 From `backend/`:
 
 ```sh
@@ -63,12 +65,14 @@ The tests check citation locations, configuration, dataset integrity, and ingest
 | `app/models/contracts.py` | Define shared input/output shapes so ingestion, retrieval, and answering agree on snapshot and source identity. |
 | `app/providers/` | Define small model interfaces and bounded OpenAI adapters for embeddings and structured answers. |
 | `app/db/` | Centralize database connections and Alembic migrations so schema changes are reproducible. |
-| `app/cli.py` | Provide a quick executable check before adding the HTTP API. |
+| `app/cli.py` | Provide deterministic local commands and diagnostic checks. |
+| `app/main.py` | Serve validated repository, job, snapshot, and bounded Q&A endpoints. |
+| `app/jobs/` | Claim and recover persisted jobs, renew leases, and publish completed indexes. |
 | `tests/` | Catch boundary failures such as invalid line ranges before they reach citations. |
 
 Other folders contain short descriptions of their future responsibilities. Their existence does not mean those features are implemented.
 
-The migrations enable pgvector and add source snapshots, parsing runs, chunks, and versioned embedding caches. Downgrading a data-table migration deletes its tables, so use forward migrations for normal development; the initial migration intentionally retains the shared vector extension on downgrade.
+The migrations enable pgvector and add source snapshots, parsing runs, chunks, versioned embedding caches, leased jobs, and ready-index publications. Downgrading a data-table migration deletes its tables, so use forward migrations for normal development; the initial migration intentionally retains the shared vector extension on downgrade.
 
 ## Troubleshooting
 

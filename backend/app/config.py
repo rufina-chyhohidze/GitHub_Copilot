@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     embedding_batch_size: int = Field(default=32, ge=1, le=128)
     embedding_token_budget: int = Field(default=200000, gt=0)
     embedding_timeout_seconds: int = Field(default=300, gt=0)
+    job_lease_seconds: int = Field(default=60, ge=6, le=3600)
+    job_max_attempts: int = Field(default=3, ge=1, le=10)
+    job_retry_seconds: int = Field(default=10, ge=1, le=300)
+    worker_poll_seconds: float = Field(default=2, gt=0, le=60)
 
     def require_embeddings(self) -> None:
         names = ("embedding_model_id", "embedding_dimensions", "provider_api_key")
