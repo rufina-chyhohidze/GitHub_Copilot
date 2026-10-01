@@ -15,7 +15,7 @@ Given a public GitHub repository URL and a pinned commit, answer “Where is aut
 
 See [the step-by-step implementation plan](docs/implementation-plan.md) for the agreed architecture, data model, delivery phases, acceptance criteria, and advanced roadmap.
 
-The first delivery is a Python command-line prototype with exact and semantic retrieval and a small evaluation dataset. The second adds background indexing, FastAPI, a bounded repository agent, and a Next.js workspace. Python repository parsing comes first; JavaScript and TypeScript support follows before the workspace release.
+The first delivery is a Python command-line prototype with exact and semantic retrieval and a small evaluation dataset. The second adds background indexing, FastAPI, a bounded repository agent, and a Next.js workspace. Python, JavaScript, JSX, TypeScript, and TSX source parsing are implemented.
 
 ## Planned stack
 
@@ -23,7 +23,7 @@ The first delivery is a Python command-line prototype with exact and semantic re
 | --- | --- |
 | Frontend | Next.js, TypeScript, Tailwind, shadcn/ui |
 | API and worker | Python, FastAPI, native Git CLI |
-| Parsing | Python AST initially; Tree-sitter for JavaScript/TypeScript |
+| Parsing | Python AST; Tree-sitter for JavaScript/TypeScript |
 | Retrieval and storage | PostgreSQL with pgvector, exact code search |
 | Agent | LangChain; custom LangGraph workflow when needed |
 | Observability and evaluation | Structured local traces; optional LangSmith |
@@ -49,6 +49,8 @@ Step 5 adds repository inspection, local lexical search, and an OpenAI-backed se
 
 Step 6 adds a repository Q&A CLI with structured answers, validated citations, one bounded repair attempt, and optional JSON traces. See the [answering guide](backend/app/answering/README.md). Live answer quality remains to be measured in Step 7.
 
-Step 7 adds the [baseline evaluation workflow](backend/app/evaluation/README.md) with per-case traces, usage/cost estimates, citation checks, and human review. The [initial report](evals/reports/development-baseline-v1.md) records 82.1% lexical file recall. A [saved live hybrid run](evals/reports/development-live-v4.md) answered 14 development questions with 92.9% file recall and valid citation provenance. The resumed v4 completeness-review implementation passes local and database tests; fresh live measurement and human quality acceptance remain pending.
+Step 7 adds the [baseline evaluation workflow](backend/app/evaluation/README.md) with per-case traces, usage/cost estimates, citation checks, and human review. The [initial report](evals/reports/development-baseline-v1.md) records 82.1% lexical file recall. A [saved live hybrid run](evals/reports/development-live-v4.md) answered 14 development questions with 92.9% file recall and valid citation provenance. The resumed v4 completeness-review implementation passes local and database tests; your human review now passes all gates for that saved run. Fresh live measurement of the current code remains pending.
 
 The future module folders include brief guides. The frontend is not implemented yet.
+
+Step 8 adds [JavaScript/TypeScript parsing](backend/app/ingestion/PARSING.md), ES import/export metadata, visible extraction limitations, and a separate six-question web-language dataset. All 210 tests pass, including PostgreSQL storage and citation checks. This extends language support while fresh Step 7 measurement remains pending; web-language model quality is not yet measured. The next planned implementation is Step 9: persisted indexing jobs and FastAPI.

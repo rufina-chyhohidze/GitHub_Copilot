@@ -54,7 +54,7 @@ class SourceSpan(Contract):
 class ParsedSymbol(Contract):
     source: SourceSpan
     name: str = Field(min_length=1)
-    kind: Literal["class", "function", "method", "variable", "module"]
+    kind: Literal["class", "function", "method", "variable", "module", "interface", "type", "enum"]
     language: str
     parent_name: str | None = None
 

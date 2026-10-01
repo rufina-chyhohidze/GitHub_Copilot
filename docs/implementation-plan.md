@@ -137,7 +137,7 @@ Completion: a CLI command accepts a repository URL/ref and question, then prints
 
 ### Step 7 — Evaluate and establish the baseline
 
-Status: evaluation runner and review workflow implemented; live quality validation remains pending. Verified 165 tests, including 20 PostgreSQL integration tests, plus lint and formatting. The [development baseline](../evals/reports/development-baseline-v1.md) reproduces 82.1% lexical file recall across 14 cases, below the 90% target. Generation is explicitly skipped because provider configuration is absent. Reports preserve every case, recheck emitted citations, record timings/usage and configurable cost estimates, and require fingerprinted human reviews for semantic quality gates. See the [evaluation workflow](../backend/app/evaluation/README.md). Step 7 and Delivery A are not complete.
+Status: evaluation runner, bounded answer completeness review, and human-review gates implemented. The [initial lexical baseline](../evals/reports/development-baseline-v1.md) measured 82.1% file recall. A [saved live hybrid run](../evals/reports/development-live-v4.md) answered 14 development cases with 92.9% file recall and valid citation provenance. The restored v4 implementation passed 172 tests; human review recorded on 2026-10-01 passes all gates for the saved v4 run. Fresh measurement of the current implementation and held-out milestone evaluation remain pending. AI review cannot grant acceptance. See the [evaluation workflow](../backend/app/evaluation/README.md). Step 7 and Delivery A are not complete.
 
 - Run the dataset against pinned snapshots and save versioned results.
 - Measure relevant-file recall at a fixed candidate limit, citation support, required-fact coverage, and uncertainty handling.
@@ -158,6 +158,8 @@ Completion: publish a baseline report with per-case results and known limitation
 ## Delivery B: ship the repository workspace
 
 ### Step 8 — Add JavaScript and TypeScript parsing
+
+Status: implemented on 2026-10-01 as an independent language-support extension while Step 7 acceptance remains pending. Tree-sitter adapters handle JS/JSX/TS/TSX, persisted imports/exports and limitations, and versioned source chunks. The separate web-language fixture has six verified evaluation cases; no live model-quality claim is made. All 210 tests pass, including 21 PostgreSQL integration tests; the existing Python suite still passes. See the [parsing guide](../backend/app/ingestion/PARSING.md).
 
 - Add Tree-sitter adapters for JS, JSX, TS, and TSX through the same parser contract.
 - Extract declarations, methods, common arrow-function assignments, imports, exports, and source spans.

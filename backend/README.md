@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1–6 provide the backend scaffold, evaluation dataset, ingestion, parsing, repository tools, hybrid retrieval, and a Q&A CLI with validated citations. HTTP endpoints come later; live semantic search and answer generation require provider configuration.
+Steps 1–8 provide the backend scaffold, evaluation datasets, ingestion, Python/JS/TS parsing, repository tools, hybrid retrieval, a Q&A CLI with validated citations, and quality-review workflows. The saved v4 run has passed human review; fresh measurement of the current code remains pending. HTTP endpoints come later; live semantic search and answer generation require provider configuration.
 
 ## Run locally
 
@@ -39,7 +39,9 @@ Step 5 adds `tree`, `read`, `search-code`, `symbols`, `find-symbol`, `embed`, an
 
 Step 6 adds `ask URL QUESTION --ref COMMIT_OR_BRANCH`, with validated source citations, bounded repair or completeness review, and optional JSON traces. See the [answering guide](app/answering/README.md) for provider setup, usage, and limitations.
 
-Step 7 adds `repo-copilot-answer-eval` for baseline runs, usage/cost reporting, citation rechecks, and explicit rubric review. See the [evaluation workflow](app/evaluation/README.md) and [saved live development results](../evals/reports/development-live-v4.md). Human quality review remains pending; AI assessments cannot grant acceptance.
+Step 7 adds `repo-copilot-answer-eval` for baseline runs, usage/cost reporting, citation rechecks, and explicit rubric review. See the [evaluation workflow](app/evaluation/README.md) and [saved live development results](../evals/reports/development-live-v4.md). The saved v4 run passed human review on 2026-10-01; fresh measurement remains pending. AI assessments cannot grant acceptance.
+
+Step 8 extends `parse` to JavaScript, JSX, TypeScript, and TSX using Tree-sitter. `symbols` now includes imports, exports, and extraction limitations. Run `uv sync --locked` to install the grammar packages, then reparse a snapshot to create a new versioned run. See the [parsing guide](app/ingestion/PARSING.md) for supported syntax, limitations, and the web-language fixture validation command.
 
 From `backend/`:
 

@@ -68,7 +68,7 @@ def test_parent_context_does_not_duplicate_child_definitions():
     [
         ("def broken(:\n", "python", "parse_error"),
         ("# Readme\n\nSome documentation.\n", "markdown", "text_fallback"),
-        ("export const value = 1;\n", "typescript", "text_fallback"),
+        ("export const value = 1;\n", "typescript", "parsed"),
         ("", "python", "parsed"),
         ("\ufeffdef f():\n    pass\n", "python", "parsed"),
     ],

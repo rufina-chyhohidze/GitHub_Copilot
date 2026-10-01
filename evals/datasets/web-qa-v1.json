@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "web-repository-qa",
+  "version": "1.0.0",
+  "sources": [
+    {
+      "id": "web-shop",
+      "kind": "fixture",
+      "version": "1.0.0",
+      "local_path": "backend/tests/fixtures/web_shop",
+      "files": {
+        "Badge.jsx": "c7f8629cd25ece3ab47170215c8b5cf84e455fa060920f3ea20a8c5931f523e3",
+        "OrderCard.tsx": "6df5c8fc1e1bb069b39ac18d7448d51c49248563e5b62e71ee233c154e2bad91",
+        "README.md": "1e41f2b47e63acfae7e4095bcc2f6605fed0a3f80d1e4143dfbfe870d019e9b8",
+        "admin.ts": "5874f0f38b2fe14ad274f69a449dd2ef447e5bdc5e4b5b4d97c0e58cd4ed5b9e",
+        "broken.ts": "a3fb1bf706e21f00ff73d9143b409bc650fc8c59d1f35d5e1a9e349f7c2d721c",
+        "events.js": "d45f2889d9bbed750635d537d87c60499b2de1e0121122dd074096b8712c0df9",
+        "legacy.cjs": "b185bdf7d78cdeadd572a5513c14d8e9cdf43ce5a5e85791f0ae538b60262602",
+        "routes.js": "91f7deabc6c05709251c569b9c86959eecade826f0546ef65c744af6914aa327",
+        "store.ts": "f6170e431af7c11de426e0776c55a70ec43f5b1e80c583a88b5f79003bbda2f2"
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "web-01",
+      "source_id": "web-shop",
+      "split": "development",
+      "category": "direct",
+      "question": "How does Store.save validate and store an order?",
+      "expected_files": [
+        "store.ts"
+      ],
+      "supporting_spans": [
+        {
+          "path": "store.ts",
+          "start_line": 9,
+          "end_line": 19,
+          "anchor": "this.orders.set(order.id, order)"
+        }
+      ],
+      "required_facts": [
+        "Store owns an in-memory Map of orders keyed by OrderId.",
+        "save rejects totals less than or equal to zero.",
+        "save writes the order under order.id and returns the same order."
+      ],
+      "uncertainty_policy": "Describe the visible source syntax; do not infer runtime module resolution or behavior of missing code.",
+      "forbidden_claims": [
+        "Orders are persisted to a database."
+      ]
+    },
+    {
+      "id": "web-02",
+      "source_id": "web-shop",
+      "split": "development",
+      "category": "multi_file",
+      "question": "What does the order route create do, and what does publish return?",
+      "expected_files": [
+        "routes.js",
+        "events.js"
+      ],
+      "supporting_spans": [
+        {
+          "path": "routes.js",
+          "start_line": 1,
+          "end_line": 13,
+          "anchor": "const saved = store.save(order)"
+        },
+        {
+          "path": "events.js",
+          "start_line": 1,
+          "end_line": 8,
+          "anchor": "topic: 'order.saved'"
+        }
+      ],
+      "required_facts": [
+        "The route imports Store as default and publish under the local alias notify.",
+        "create saves the order, passes the saved order to notify, and returns the saved order.",
+        "publish returns an object with topic order.saved and the order id."
+      ],
+      "uncertainty_policy": "Describe the visible source syntax; do not infer runtime module resolution or behavior of missing code.",
+      "forbidden_claims": [
+        "publish sends a network message.",
+        "Every order is encrypted."
+      ]
+    },
+    {
+      "id": "web-03",
+      "source_id": "web-shop",
+      "split": "development",
+      "category": "ambiguity",
+      "question": "How do the two exported create functions differ?",
+      "expected_files": [
+        "routes.js",
+        "admin.ts"
+      ],
+      "supporting_spans": [
+        {
+          "path": "routes.js",
+          "start_line": 6,
+          "end_line": 10,
+          "anchor": "export const create"
+        },
+        {
+          "path": "admin.ts",
+          "start_line": 1,
+          "end_line": 2,
+          "anchor": "export const create"
+        }
+      ],
+      "required_facts": [
+        "routes.js create saves an order, calls notify, and returns the saved order.",
+        "admin.ts create returns an object with the supplied id and role admin.",
+        "These are distinct declarations in separate files."
+      ],
+      "uncertainty_policy": "Describe the visible source syntax; do not infer runtime module resolution or behavior of missing code.",
+      "forbidden_claims": []
+    },
+    {
+      "id": "web-04",
+      "source_id": "web-shop",
+      "split": "development",
+      "category": "direct",
+      "question": "What does OrderCard render and how is it exported?",
+      "expected_files": [
+        "OrderCard.tsx"
+      ],
+      "supporting_spans": [
+        {
+          "path": "OrderCard.tsx",
+          "start_line": 1,
+          "end_line": 7,
+          "anchor": "<article data-id={order.id}>"
+        }
+      ],
+      "required_facts": [
+        "Order is imported as a type from ./store.",
+        "OrderCard renders an article with data-id equal to order.id and displays order.total.",
+        "OrderCard is a named export and is also the default export."
+      ],
+      "uncertainty_policy": "Describe the visible source syntax; do not infer runtime module resolution or behavior of missing code.",
+      "forbidden_claims": []
+    },
+    {
+      "id": "web-05",
+      "source_id": "web-shop",
+      "split": "development",
+      "category": "insufficient_evidence",
+      "question": "Does the legacy adapter persist data to a database?",
+      "expected_files": [
+        "legacy.cjs"
+      ],
+      "supporting_spans": [
+        {
+          "path": "legacy.cjs",
+          "start_line": 1,
+          "end_line": 2,
+          "anchor": "require('./external')"
+        }
+      ],
+      "required_facts": [
+        "The module requires ./external and delegates its exported function to adapter.save(value).",
+        "The external implementation is missing, so database persistence cannot be established."
+      ],
+      "uncertainty_policy": "Describe the visible source syntax; do not infer runtime module resolution or behavior of missing code.",
+      "forbidden_claims": [
+        "The adapter definitely writes to a database.",
+        "The adapter definitely never writes to a database."
+      ]
+    },
+    {
+      "id": "web-06",
+      "source_id": "web-shop",
+      "split": "held_out",
+      "category": "direct",
+      "question": "What does Badge render and what kind of export is it?",
+      "expected_files": [
+        "Badge.jsx"
+      ],
+      "supporting_spans": [
+        {
+          "path": "Badge.jsx",
+          "start_line": 1,
+          "end_line": 3,
+          "anchor": "return <span>{label}</span>"
+        }
+      ],
+      "required_facts": [
+        "Badge is a default-exported function receiving label through a destructured parameter.",
+        "It returns a span containing label."
+      ],
+      "uncertainty_policy": "Describe the visible source syntax; do not infer runtime module resolution or behavior of missing code.",
+      "forbidden_claims": []
+    }
+  ]
+}

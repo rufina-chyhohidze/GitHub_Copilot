@@ -78,7 +78,7 @@ def parse_and_store(connection: Connection, snapshot_id: UUID, settings: Setting
     )
     details = []
     statuses = Counter()
-    total_chunks = total_symbols = total_imports = 0
+    total_chunks = total_symbols = total_imports = total_exports = files_with_limitations = 0
     for file_id in file_ids:
         check_time()
         file = (
@@ -86,7 +86,7 @@ def parse_and_store(connection: Connection, snapshot_id: UUID, settings: Setting
             .mappings()
             .one()
         )
-        parsed = parse_source(file["content"], file["language"])
+        parsed = parse_source(file["content"], file["language"], path=file["path"])
         chunks = chunks_for_source(
             file["content"],
             parsed,
@@ -99,6 +99,8 @@ def parse_and_store(connection: Connection, snapshot_id: UUID, settings: Setting
             raise ValueError("Parsing exceeded COPILOT_MAX_SNAPSHOT_CHUNKS")
         total_symbols += len(parsed.symbols)
         total_imports += len(parsed.imports)
+        total_exports += len(parsed.exports)
+        files_with_limitations += bool(parsed.limitations)
         statuses[parsed.status] += 1
         details.append(
             {
@@ -108,6 +110,8 @@ def parse_and_store(connection: Connection, snapshot_id: UUID, settings: Setting
                 "error": parsed.error,
                 "symbols": [asdict(symbol) for symbol in parsed.symbols],
                 "imports": [asdict(item) for item in parsed.imports],
+                "exports": [asdict(item) for item in parsed.exports],
+                "limitations": list(parsed.limitations),
                 "chunk_count": len(chunks),
             }
         )
@@ -130,6 +134,8 @@ def parse_and_store(connection: Connection, snapshot_id: UUID, settings: Setting
         "files": len(details),
         "symbols": total_symbols,
         "imports": total_imports,
+        "exports": total_exports,
+        "files_with_limitations": files_with_limitations,
         "chunks": total_chunks,
         "files_by_status": dict(statuses),
         "ready_for_qa": False,

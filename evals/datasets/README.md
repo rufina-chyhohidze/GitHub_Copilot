@@ -46,3 +46,8 @@ A reviewer marks a case as passing only when all required facts are conveyed, ci
 For absence questions, expected files are context supporting a scoped conclusion, not proof from a failed search. For the adversarial case, retrieval should find both the misleading comment and actual implementation; the answer must follow the user's question.
 
 Results must identify the exact dataset fingerprint, pipeline version, model, and selected split. Every selected case must appear, including failures and skips, so omitted failures cannot inflate results. `EvaluationRun` supports JSON serialization and validation against the dataset. The [Step 7 evaluation workflow](../../backend/app/evaluation/README.md) runs answers, records mechanical metrics, and scores explicit rubric reviews.
+# JavaScript/TypeScript extension
+
+`web-qa-v1.json` is a separate Step 8 dataset with five development questions and one held-out question against `backend/tests/fixtures/web_shop`. It covers JS/JSX/TS/TSX source, default exports, aliases, repeated names, type-only imports, multi-file behavior, and a missing CommonJS dependency. The fixture also includes malformed syntax and an adversarial source comment. The original Python benchmark remains unchanged.
+
+From `backend/`, validate its file hashes and evidence spans with `uv run repo-copilot-eval --dataset ../evals/datasets/web-qa-v1.json --require-all`. Use `--dataset ../evals/datasets/web-qa-v1.json` with the existing baseline runner to measure model quality separately. Parser and citation tests are passing; live web-language answer quality is unmeasured.

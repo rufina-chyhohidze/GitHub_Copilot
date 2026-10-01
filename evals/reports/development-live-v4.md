@@ -12,8 +12,8 @@ The saved run dated 2026-09-30 used hybrid retrieval and `gpt-4.1-mini-2025-04-1
 | Generation input / output tokens | 57,521 / 5,230 |
 | Embedding tokens charged to this run | 0 |
 | Estimated cost | Unknown; pricing was not supplied |
-| Human quality review | Pending |
-| All acceptance gates passed | No |
+| Human quality review | Approved by Rufina on 2026-10-01 |
+| All acceptance gates passed | Yes, for this saved development run |
 
 Citation validity establishes source identity, bounds, and hashes, not whether the claims accurately explain the evidence. The model's completeness revision does not count as rubric review. Zero embedding tokens in this run does not imply that preparing the cached index was free.
 
@@ -25,6 +25,12 @@ The interrupted workspace contained v4 documentation and traces, while the answe
 
 The saved live measurement predates this restoration; it is historical evidence, not a fresh measurement of the resumed code. Validation of the resumed implementation passed all 172 tests, including PostgreSQL integration tests, plus Ruff lint and formatting checks. Tests use deterministic or mocked providers.
 
+## Human review on 2026-10-01
+
+Rufina confirmed in conversation that all saved answers had been checked and looked fine. The assistant transcribed that blanket approval into the per-claim and per-fact rubric arrays, preserving the report fingerprint and attributing the assessment to the human reviewer. These are human-approved scores, not an independent AI quality assessment.
+
+The [scored human review](development-live-v4-human-reviewed.json) passes all five gates: 92.86% file recall, 100% citation validity, and human approval of all claims, required facts, case outcomes, and insufficient-evidence handling across 14 cases. The original raw report and unreviewed summary remain unchanged as historical artifacts.
+
 ## Remaining acceptance work
 
-Run a fresh development baseline for the restored implementation and inspect its fingerprinted answers against the rubric. A human must assess claim support, required facts, forbidden claims, and uncertainty before acceptance. Improve any failing stages using development cases, then evaluate the held-out split at the milestone. Step 7 and Delivery A remain incomplete until the agreed quality gates pass.
+Run a fresh development baseline for the current implementation and review its fingerprinted answers. The recorded approval applies only to the saved September 30 report; it does not transfer to new outputs or the JS/TS extension. Evaluate the held-out split at the milestone. Current-code validation remains pending, while human review of the saved v4 run is complete.

@@ -198,7 +198,12 @@ class RepositoryTools:
             "status": detail["status"],
             "error": detail["error"],
             "symbols": detail["symbols"][:limit],
-            "truncated": len(detail["symbols"]) > limit,
+            "imports": detail["imports"][:limit],
+            "exports": detail.get("exports", [])[:limit],
+            "limitations": detail.get("limitations", []),
+            "truncated": any(
+                len(detail.get(key, [])) > limit for key in ("symbols", "imports", "exports")
+            ),
         }
 
     @bounded_result

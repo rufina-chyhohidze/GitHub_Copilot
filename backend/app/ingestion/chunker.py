@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from app.ingestion.parser import PARSER_VERSION, ParseResult, Symbol
 
-CHUNKER_VERSION = "source-chunks-v1"
+CHUNKER_VERSION = "source-chunks-v2"
 
 
 @dataclass(frozen=True)
@@ -46,7 +46,7 @@ def chunks_for_source(
         offsets.append(offsets[-1] + len(line))
     owners: list[Symbol | None] = [None] * len(lines)
     for symbol in parsed.symbols:
-        if symbol.kind not in {"class", "function", "method"}:
+        if symbol.kind not in {"class", "function", "method", "interface", "enum", "module"}:
             continue
         for index in range(symbol.start_line - 1, symbol.end_line):
             owners[index] = symbol

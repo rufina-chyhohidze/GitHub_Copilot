@@ -3,8 +3,17 @@
 import ast
 import sys
 from dataclasses import dataclass
+from importlib.metadata import version
+from pathlib import PurePosixPath
 
-PARSER_VERSION = f"python-ast-v1-py{sys.version_info.major}.{sys.version_info.minor}"
+PARSER_VERSION = f"syntax-v2-py{sys.version_info.major}.{sys.version_info.minor}" + "".join(
+    f"-{label}{version(package)}"
+    for label, package in (
+        ("ts", "tree-sitter"),
+        ("js", "tree-sitter-javascript"),
+        ("tsx", "tree-sitter-typescript"),
+    )
+)
 
 
 @dataclass(frozen=True)
@@ -25,6 +34,20 @@ class Import:
     start_line: int
     end_line: int
     scope: str | None
+    type_only: bool = False
+    resolution: str = "unresolved"
+
+
+@dataclass(frozen=True)
+class Export:
+    name: str | None
+    alias: str
+    module: str | None
+    start_line: int
+    end_line: int
+    scope: str | None
+    type_only: bool = False
+    resolution: str = "unresolved"
 
 
 @dataclass(frozen=True)
@@ -33,6 +56,8 @@ class ParseResult:
     symbols: tuple[Symbol, ...] = ()
     imports: tuple[Import, ...] = ()
     error: str | None = None
+    exports: tuple[Export, ...] = ()
+    limitations: tuple[str, ...] = ()
 
 
 class Symbols(ast.NodeVisitor):
@@ -111,7 +136,12 @@ class Symbols(ast.NodeVisitor):
             )
 
 
-def parse_source(content: str, language: str) -> ParseResult:
+def parse_source(content: str, language: str, *, path: str | None = None) -> ParseResult:
+    if language in {"javascript", "jsx", "typescript", "tsx"}:
+        from app.ingestion.javascript import parse_javascript
+
+        dialect = "tsx" if path and PurePosixPath(path).suffix.lower() == ".tsx" else language
+        return parse_javascript(content, dialect)
     if language != "python":
         return ParseResult("text_fallback")
     try:

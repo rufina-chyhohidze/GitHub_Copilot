@@ -1,0 +1,239 @@
+{
+  "report_sha256": "93df8ce0210d9cc126b181704732f29fd561f5e9e63d1ad690114d79e9785b81",
+  "summary": {
+    "cases": 14,
+    "answered": 14,
+    "failed": 0,
+    "skipped": 0,
+    "reviewed": 14,
+    "macro_file_recall_at_10_chunks": 0.9285714285714286,
+    "citation_validity": 1.0,
+    "reviewed_claim_support": 1.0,
+    "confirmed_required_fact_coverage": 1.0,
+    "confirmed_case_pass_rate": 1.0,
+    "mean_case_latency_ms": 4907.727428571467,
+    "gates": {
+      "citation_validity": true,
+      "file_recall_at_10_chunks": true,
+      "claim_support": true,
+      "case_pass_rate": true,
+      "insufficient_evidence": true
+    },
+    "review_kind": "human",
+    "human_review_complete": true,
+    "quality_thresholds_met": true,
+    "all_gates_pass": true,
+    "answer_quality_evaluated": true
+  },
+  "review": {
+    "report_sha256": "93df8ce0210d9cc126b181704732f29fd561f5e9e63d1ad690114d79e9785b81",
+    "reviewer": "Rufina",
+    "kind": "human",
+    "cases": {
+      "shop-01": {
+        "supported_claims": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-02": {
+        "supported_claims": [
+          true
+        ],
+        "required_facts": [
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-03": {
+        "supported_claims": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-04": {
+        "supported_claims": [
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-05": {
+        "supported_claims": [
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-06": {
+        "supported_claims": [
+          true,
+          true
+        ],
+        "required_facts": [
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-07": {
+        "supported_claims": [
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-08": {
+        "supported_claims": [
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-09": {
+        "supported_claims": [
+          true
+        ],
+        "required_facts": [
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "shop-10": {
+        "supported_claims": [
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "sample-01": {
+        "supported_claims": [
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "sample-02": {
+        "supported_claims": [
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "signing-01": {
+        "supported_claims": [
+          true,
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      },
+      "signing-02": {
+        "supported_claims": [
+          true,
+          true,
+          true
+        ],
+        "required_facts": [
+          true,
+          true
+        ],
+        "uncertainty_correct": true,
+        "forbidden_claims_absent": true,
+        "failure_stage": "none",
+        "notes": "Recorded from the human reviewer's conversation confirmation on 2026-10-01: \"i checked it all, all look fine\". Boolean rubric entries transcribed by the assistant from that blanket approval; not an independent assistant assessment. Applies only to the fingerprinted saved v4 report."
+      }
+    }
+  }
+}
