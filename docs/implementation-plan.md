@@ -197,6 +197,8 @@ Completion: the agent answers tested multi-file questions with auditable tool ca
 
 ### Step 11 — Add conversations and resumable run streaming
 
+Status: implemented on 2026-10-02. The additive `0006_conversations` migration persists pinned conversations, messages, answer runs, cited evidence, and ordered events. A separate answer worker supports both pipelines, idempotent submission, cancellation, and terminal recovery after interruption. SSE reconnects replay committed events without repeating model calls. Tool activity is live; prose is chunked after structured generation and remains provisional until final publication. All 261 tests pass, including 54 PostgreSQL integration tests; lint, formatting, migration, database smoke, and the answer-worker entrypoint pass. Live answer-quality gates remain separate. See the [conversation and streaming guide](../backend/app/conversations/README.md).
+
 - Persist conversations, messages, answer runs, evidence, and ordered events.
 - Have message submission create a run and return its ID; use a separate SSE endpoint to observe that run.
 - Emit `status`, `tool_started`, `tool_finished`, `answer_delta`, `citation`, `error`, and `done` events with sequence IDs.

@@ -35,13 +35,17 @@ async def answer(
     mode="hybrid",
     run_id=None,
     planner=None,
+    answer_run_id=None,
+    on_event=None,
+    history=None,
 ):
     literal_query(question)
     if mode not in {"lexical", "hybrid"} or (mode == "hybrid" and provider is None):
         raise ValueError("Agent requires lexical mode or a hybrid embedding provider")
     started = time.monotonic()
     deadline = started + settings.run_timeout_seconds
-    identity = uuid4()
+    identity = answer_run_id or uuid4()
+    emit = on_event or (lambda *_: None)
     result = {
         "run_id": str(identity),
         "snapshot_id": str(snapshot_id),
@@ -85,6 +89,7 @@ async def answer(
             timeout_seconds=max(1, int(remaining)),
         )
         result["model_calls"] += 1
+        emit("status", {"status": "generating", "purpose": purpose})
         response = await adapter.generate(prompt, limits=limits)
         result["usage"]["input_tokens"] += response.input_tokens
         result["usage"]["output_tokens"] += response.output_tokens
@@ -123,7 +128,7 @@ async def answer(
                 ).scalar_one()
                 registry = EvidenceRegistry(tools, identity)
                 runtime = RepositoryAgentTools(
-                    engine, tools, registry, settings, provider, mode, deadline
+                    engine, tools, registry, settings, provider, mode, deadline, on_event=on_event
                 )
                 # Keep the initial ten-candidate retrieval identical in scope to the baseline.
                 await runtime.invoke("search", {"query": question, "limit": 10})
@@ -135,6 +140,7 @@ async def answer(
                     planner = planner if planner is not None else OpenAIAgentPlanner(settings)
                     scope = {
                         "question": question,
+                        **({"conversation_history_untrusted": history} if history else {}),
                         "observations": runtime.observations,
                         "tools": {
                             name: {
@@ -189,6 +195,7 @@ async def answer(
                 else:
                     scope = {
                         "question": question,
+                        **({"conversation_history_untrusted": history} if history else {}),
                         "evidence": evidence,
                         "coverage": tools.snapshot["coverage"],
                         "investigation_limits": result["stop_reason"],

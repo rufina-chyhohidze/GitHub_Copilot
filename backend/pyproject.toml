@@ -29,6 +29,7 @@ repo-copilot-eval = "app.evaluation.cli:main"
 repo-copilot-retrieval-eval = "app.evaluation.retrieval:main"
 repo-copilot-answer-eval = "app.evaluation.baseline:main"
 repo-copilot-worker = "app.jobs.worker:main"
+repo-copilot-answer-worker = "app.conversations.worker:main"
 repo-copilot-compare = "app.evaluation.compare:main"
 
 [dependency-groups]

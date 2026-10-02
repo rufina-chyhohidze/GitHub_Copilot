@@ -38,7 +38,8 @@ class SearchArgs(Contract):
 
 
 class RepositoryAgentTools:
-    def __init__(self, engine, tools, registry, settings, provider, mode, deadline):
+    def __init__(self, engine, tools, registry, settings, provider, mode, deadline, on_event=None):
+        self.emit = on_event or (lambda *_: None)
         self.engine, self.tools, self.registry = engine, tools, registry
         self.settings, self.provider, self.mode, self.deadline = settings, provider, mode, deadline
         self.embedding_tokens = 0
@@ -162,6 +163,7 @@ class RepositoryAgentTools:
             raise ValueError("tool_bytes_exhausted")
         if time.monotonic() >= self.deadline:
             raise TimeoutError
+        self.emit("tool_started", {"tool": name})
         self.calls += 1
         started = time.monotonic()
         before = set(self.registry.entries)
@@ -210,6 +212,7 @@ class RepositoryAgentTools:
                 "returned_bytes": len(json.dumps(output, ensure_ascii=False).encode()),
             }
         )
+        self.emit("tool_finished", self.events[-1])
         self.observations.append({"tool": name, "arguments": arguments, "result": output})
         if time.monotonic() >= self.deadline:
             raise TimeoutError

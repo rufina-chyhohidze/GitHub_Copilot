@@ -75,3 +75,7 @@ Integration tests exercise submission → worker → ready index → file → ci
 Implementation references: [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/) and [testing](https://fastapi.tiangolo.com/tutorial/testing/).
 
 Step 10 accepts `"pipeline":"agent"` in the question body; omitted or `"fixed"` keeps the baseline. Both use the same published source identity and citation validation. See the [agent guide](../agents/README.md) for additional budgets and trace behavior.
+
+## Conversations and run streaming
+
+Step 11 adds conversation creation/history, idempotent message submission, run status/cancellation, and replayable SSE. See the [conversation guide](../conversations/README.md) for endpoints, client event handling, and the separate answer worker. The synchronous ask endpoint remains available.

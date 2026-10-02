@@ -46,12 +46,24 @@ def validation_feedback(error):
 
 
 async def answer(
-    engine, snapshot_id, question, settings, model, *, provider=None, mode="hybrid", run_id=None
+    engine,
+    snapshot_id,
+    question,
+    settings,
+    model,
+    *,
+    provider=None,
+    mode="hybrid",
+    run_id=None,
+    answer_run_id=None,
+    on_event=None,
+    history=None,
 ):
     literal_query(question)
+    emit = on_event or (lambda *_: None)
     started = time.monotonic()
     result = {
-        "run_id": str(uuid4()),
+        "run_id": str(answer_run_id or uuid4()),
         "snapshot_id": str(snapshot_id),
         "pipeline_version": PIPELINE_VERSION,
         "status": "failed",
@@ -63,8 +75,19 @@ async def answer(
     }
     try:
         async with asyncio.timeout(settings.run_timeout_seconds):
+            emit(
+                "tool_started",
+                {"tool": "hybrid_retrieval" if mode == "hybrid" else "lexical_retrieval"},
+            )
             retrieved = await retrieve(
                 engine, snapshot_id, question, settings, mode=mode, provider=provider, run_id=run_id
+            )
+            emit(
+                "tool_finished",
+                {
+                    "tool": "hybrid_retrieval" if mode == "hybrid" else "lexical_retrieval",
+                    "status": "completed",
+                },
             )
             result["retrieval"] = retrieved
             result["usage"]["embedding_input_tokens"] = retrieved["input_tokens"]
@@ -79,9 +102,16 @@ async def answer(
                 ).scalar_one()
                 evidence = []
                 # Reserve room for instructions, schema, question, framing and repair feedback.
-                budget = max(0, settings.max_context_tokens - 6000)
+                budget = max(
+                    0,
+                    settings.max_context_tokens
+                    - 6000
+                    - (len(json.dumps(history, ensure_ascii=False).encode()) if history else 0),
+                )
                 for row in retrieved["context"][: max(0, settings.max_tool_calls - 1)]:
+                    emit("tool_started", {"tool": "read_file"})
                     entry = registry.add(row["path"], row["start_line"], row["end_line"])
+                    emit("tool_finished", {"tool": "read_file", "status": "completed"})
                     if entry is None:
                         continue
                     if len(json.dumps(evidence + [entry], ensure_ascii=False).encode()) > budget:
@@ -95,6 +125,7 @@ async def answer(
                     "coverage": tools.snapshot["coverage"],
                     "evidence": evidence,
                     "question": question,
+                    **({"conversation_history_untrusted": history} if history else {}),
                 }
                 if not evidence:
                     draft = Draft(
@@ -144,6 +175,7 @@ async def answer(
                             max_output_tokens=settings.max_output_tokens,
                             timeout_seconds=max(1, int(remaining)),
                         )
+                        emit("status", {"status": "generating", "purpose": purpose})
                         generated = await model.generate(prompt, limits=limits)
                         result["usage"]["input_tokens"] += generated.input_tokens
                         result["usage"]["output_tokens"] += generated.output_tokens

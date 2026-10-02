@@ -1,6 +1,6 @@
 # Backend
 
-Steps 1–10 provide the backend scaffold, evaluation datasets, ingestion, Python/JS/TS parsing, repository tools, hybrid retrieval, cited Q&A, review workflows, a FastAPI service, a recoverable indexing worker, and an opt-in bounded agent. The saved v4 run has passed human review; fresh development measurements are recorded in the [Step 10 comparison](../evals/reports/step10-comparison.md), with new answer review pending. Live semantic search and answer generation require provider configuration.
+Steps 1–11 provide the backend scaffold, evaluation datasets, ingestion, Python/JS/TS parsing, repository tools, hybrid retrieval, cited Q&A, review workflows, a FastAPI service, a recoverable indexing worker, and an opt-in bounded agent. The saved v4 run has passed human review; fresh development measurements are recorded in the [Step 10 comparison](../evals/reports/step10-comparison.md), with new answer review pending. Live semantic search and answer generation require provider configuration.
 
 ## Run locally
 
@@ -46,6 +46,8 @@ Step 8 extends `parse` to JavaScript, JSX, TypeScript, and TSX using Tree-sitter
 Step 9 adds the [HTTP API](app/api/README.md) and [indexing worker](app/jobs/README.md). After `uv sync --locked` and `uv run alembic upgrade head`, run `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` and `uv run repo-copilot-worker` in separate terminals. Open `http://127.0.0.1:8000/docs` for interactive endpoints. Repository submission returns an indexing job; file browsing and HTTP Q&A require a published ready index. Existing CLI snapshots can be indexed through a worker job without overwriting their source.
 
 Step 10 adds `--pipeline agent` to `repo-copilot ask` and `"pipeline":"agent"` to HTTP Q&A. The fixed pipeline remains the default. See the [agent guide](app/agents/README.md) for tools, limits, traces and the [evaluation guide](app/evaluation/README.md) for matched comparisons.
+
+Step 11 adds [pinned conversations and resumable SSE](app/conversations/README.md), idempotent message submission, cancellation, and a separate `uv run repo-copilot-answer-worker`. Apply the new migration and run the answer worker alongside the API and indexing worker.
 
 From `backend/`:
 

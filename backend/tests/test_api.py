@@ -50,3 +50,21 @@ def test_database_errors_do_not_expose_credentials():
         response = client.get("/health")
         assert response.status_code == 503
         assert "secret" not in response.text
+
+
+@pytest.mark.parametrize("headers", [{}, {"Idempotency-Key": " "}, {"Idempotency-Key": "x" * 129}])
+def test_message_requires_bounded_idempotency_key(headers):
+    with TestClient(create_app(Settings(_env_file=None), NoDatabase())) as client:
+        response = client.post(
+            f"/conversations/{uuid4()}/messages", json={"question": "authenticate"}, headers=headers
+        )
+        assert response.status_code == 422
+
+
+def test_event_cursor_validation_precedes_database():
+    with TestClient(create_app(Settings(_env_file=None), NoDatabase())) as client:
+        for value in ("-1", "not-a-number"):
+            assert (
+                client.get(f"/runs/{uuid4()}/events", headers={"Last-Event-ID": value}).status_code
+                == 422
+            )

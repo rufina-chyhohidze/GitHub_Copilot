@@ -15,6 +15,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.answering.pipeline import answer
 from app.config import Settings
+from app.conversations.api import install as install_conversations
 from app.db.schema import index_jobs, repositories, repository_files, snapshots
 from app.db.session import make_engine
 from app.ingestion.clone import canonical_url, validate_ref
@@ -332,6 +333,7 @@ def create_app(
             )
         return result
 
+    install_conversations(app, require_ready, QuestionRequest)
     return app
 
 
