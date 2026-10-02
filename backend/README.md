@@ -49,6 +49,8 @@ Step 10 adds `--pipeline agent` to `repo-copilot ask` and `"pipeline":"agent"` t
 
 Step 11 adds [pinned conversations and resumable SSE](app/conversations/README.md), idempotent message submission, cancellation, and a separate `uv run repo-copilot-answer-worker`. Apply the new migration and run the answer worker alongside the API and indexing worker.
 
+Step 12 adds the [Next.js workspace](../frontend/README.md). Keep the API and both workers running, then start the frontend to submit repositories, browse stored source, and ask cited questions.
+
 From `backend/`:
 
 ```sh

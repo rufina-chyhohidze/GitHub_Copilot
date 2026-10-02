@@ -1,5 +1,6 @@
 """Tree-sitter syntax extraction; module targets and runtime calls stay unresolved."""
 
+from bisect import bisect_right
 from functools import lru_cache
 
 import tree_sitter_javascript
@@ -45,18 +46,23 @@ def has_token(node: Node, token: str) -> bool:
     return any(child.type == token for child in node.children)
 
 
-def end_line(node: Node) -> int:
-    # Tree-sitter ends are exclusive, while persisted source locations are inclusive.
-    return node.end_point.row + (1 if node.end_point.column else 0)
-
-
 class Syntax:
-    def __init__(self):
+    def __init__(self, source: bytes):
+        # Avoid native Point access: some tree-sitter builds corrupt memory when
+        # reading Point.column. Byte offsets also preserve UTF-8 source locations.
+        self.line_offsets = [0] + [i + 1 for i, byte in enumerate(source) if byte == 10]
         self.symbols = []
         self.imports = []
         self.exports = []
         self.limitations = set()
         self.scope = []
+
+    def start_line(self, node):
+        return bisect_right(self.line_offsets, node.start_byte)
+
+    def end_line(self, node):
+        # Exclusive byte ends become inclusive source lines.
+        return bisect_right(self.line_offsets, max(node.start_byte, node.end_byte - 1))
 
     @property
     def parent(self):
@@ -65,7 +71,7 @@ class Syntax:
     def definition(self, node, name, kind, span=None):
         span = span if span is not None else node
         qualified = f"{self.parent}.{name}" if self.parent else name
-        symbol = Symbol(qualified, kind, span.start_point.row + 1, end_line(node), self.parent)
+        symbol = Symbol(qualified, kind, self.start_line(span), self.end_line(node), self.parent)
         self.symbols.append(symbol)
         if kind in {"variable", "type"}:
             return
@@ -96,8 +102,8 @@ class Syntax:
                     name,
                     alias,
                     0,
-                    node.start_point.row + 1,
-                    end_line(node),
+                    self.start_line(node),
+                    self.end_line(node),
                     self.parent,
                     type_only or only_type,
                 )
@@ -132,8 +138,8 @@ class Syntax:
                     name,
                     alias,
                     module,
-                    node.start_point.row + 1,
-                    end_line(node),
+                    self.start_line(node),
+                    self.end_line(node),
                     self.parent,
                     type_only or only_type,
                 )
@@ -260,18 +266,19 @@ class Syntax:
 
 def parse_javascript(content: str, dialect: str) -> ParseResult:
     try:
-        tree = Parser(grammar(dialect)).parse(content.encode("utf-8"))
+        source = content.encode("utf-8")
+        syntax = Syntax(source)
+        tree = Parser(grammar(dialect)).parse(source)
         if tree.root_node.has_error:
             pending = [tree.root_node]
             while pending:
                 node = pending.pop()
                 if node.is_error or node.is_missing:
                     return ParseResult(
-                        "parse_error", error=f"SyntaxError at line {node.start_point.row + 1}"
+                        "parse_error", error=f"SyntaxError at line {syntax.start_line(node)}"
                     )
                 pending.extend(reversed([c for c in node.children if c.has_error or c.is_missing]))
             return ParseResult("parse_error", error="SyntaxError at unknown line")
-        syntax = Syntax()
         syntax.visit(tree.root_node)
         return ParseResult(
             "parsed",

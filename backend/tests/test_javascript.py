@@ -193,3 +193,26 @@ def test_parser_never_executes_javascript(tmp_path):
 def test_web_dataset_matches_fixture_and_declared_evidence():
     dataset = load_dataset(FIXTURE.parents[3] / "evals/datasets/web-qa-v1.json")
     assert verify_source(dataset, dataset.sources[0], FIXTURE) == len(dataset.cases)
+
+
+@pytest.mark.parametrize("trailing_newline", [False, True])
+def test_repeated_large_unicode_source_locations(trailing_newline):
+    # Exercise locations beyond CPython's small-integer cache across fresh trees.
+    content = "// café 😀\n" * 300 + "export function café() {\n  return '😀';\n}"
+    if trailing_newline:
+        content += "\n"
+    for _ in range(50):
+        parsed = parse_source(content, "javascript", path="large.js")
+        assert parsed.status == "parsed"
+        assert [(s.start_line, s.end_line) for s in parsed.symbols] == [(301, 303)]
+        chunks = chunks_for_source(content, parsed, 64)
+        assert "".join(chunk.content for chunk in chunks) == content
+
+
+@pytest.mark.parametrize("start,end", [(0, 1), (1, 3), (2, 1)])
+def test_chunker_rejects_invalid_parser_locations(start, end):
+    from app.ingestion.parser import ParseResult, Symbol
+
+    parsed = ParseResult("parsed", (Symbol("broken", "function", start, end, None),))
+    with pytest.raises(ValueError, match="outside source line bounds"):
+        chunks_for_source("one\ntwo\n", parsed, 64)

@@ -46,3 +46,7 @@ coverage/
 /.workspaces/
 /backend/.data/
 /backend/.workspaces/
+
+# Browser-test artifacts
+/frontend/test-results/
+/frontend/playwright-report/

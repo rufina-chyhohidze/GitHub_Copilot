@@ -48,6 +48,8 @@ def chunks_for_source(
     for symbol in parsed.symbols:
         if symbol.kind not in {"class", "function", "method", "interface", "enum", "module"}:
             continue
+        if not 1 <= symbol.start_line <= symbol.end_line <= len(lines):
+            raise ValueError("Parser returned a symbol outside source line bounds")
         for index in range(symbol.start_line - 1, symbol.end_line):
             owners[index] = symbol
 

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from importlib.metadata import version
 from pathlib import PurePosixPath
 
-PARSER_VERSION = f"syntax-v2-py{sys.version_info.major}.{sys.version_info.minor}" + "".join(
+PARSER_VERSION = f"syntax-v3-py{sys.version_info.major}.{sys.version_info.minor}" + "".join(
     f"-{label}{version(package)}"
     for label, package in (
         ("ts", "tree-sitter"),

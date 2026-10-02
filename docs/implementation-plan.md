@@ -211,6 +211,8 @@ Completion: disconnecting and reconnecting restores a coherent run, failed runs 
 
 ### Step 12 — Build the Next.js repository workspace
 
+Status: implemented on 2026-10-02. The Next.js workspace includes a responsive homepage with a pausable workflow preview, a right-side repository link form, and three-step instructions; indexing progress; a saved-version selector; file browsing and cited source highlighting; pinned chat history; resumable activity; cancellation; and explicit new conversations on newer commits. Production build, TypeScript, formatting, and all 14 Chromium tests pass, including automated WCAG A/AA checks. Browser tests exercise the real API, both workers, and isolated PostgreSQL storage with deterministic providers; no paid model calls were made. Live answer-quality acceptance remains separate. See the [frontend guide](../frontend/README.md).
+
 - Add repository submission, indexing progress, actionable failures, and an indexed-commit indicator.
 - Build the file tree, code viewer, chat, source citations, and collapsible agent activity panel.
 - Make citation clicks load the stored snapshot file and highlight the referenced lines.
