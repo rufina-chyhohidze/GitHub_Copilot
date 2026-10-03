@@ -14,7 +14,7 @@ async function proxy(
       { status: 404 },
     );
   if (
-    request.method === "POST" &&
+    ["POST", "DELETE"].includes(request.method) &&
     request.headers.get("origin") &&
     new URL(request.headers.get("origin")!).host !== request.headers.get("host")
   ) {
@@ -71,4 +71,4 @@ async function proxy(
     );
   }
 }
-export { proxy as GET, proxy as POST };
+export { proxy as GET, proxy as POST, proxy as DELETE };

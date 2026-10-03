@@ -1,6 +1,8 @@
 # Repository workspace
 
-Step 12 provides a Next.js/TypeScript workspace for public GitHub repositories: indexing progress, file browsing, stored source, cited chat, saved conversations, and resumable answer activity. The homepage puts a pausable workflow preview on the left, the repository link form on the right, and three short instructions below. The UI uses Lucide icons and plain CSS; no external fonts or image service is required.
+GitHub Copilot is a Next.js/TypeScript workspace for public GitHub repositories, with an orange-and-obsidian theme, animated code orbits, cited chat, source browsing, and saved conversations. The landing page introduces it with “Don’t judge a repo by its cover. Look inside.” Built with React, Lucide icons, and CSS animations; no external fonts, image services, or animation runtime are required.
+
+The landing illustration has a pause control and respects reduced-motion preferences. Fine pointers get an interactive cursor halo, while scrolling beyond the page bottom reveals a dismissible message with a cooldown. During indexing, the optional Repo Runner game supports Space/Up or touch to jump, Escape to pause, collision/restart, and a browser-local best score. It pauses when the tab is hidden and disappears when indexing ends. The game never blocks indexing.
 
 ## Run locally
 
@@ -26,6 +28,7 @@ For a production build, use `npm run build` then `npm start`. These commands bin
 
 ## Workspace behavior
 
+- **My repositories** on the homepage lists repositories saved in this local app, including those outside the recent sidebar list. Open one to resume browsing. **Delete** in the workspace or library asks for confirmation before removing its saved snapshots, files, jobs, and conversations; it never deletes the GitHub repository. Active indexing or answers must finish (or the answer be cancelled) first. Shared embedding-cache entries remain reusable.
 - The sidebar remembers recently opened repository IDs in this browser. Shareable URLs identify the repository, saved snapshot, conversation, and any active indexing job. Source, messages, and run history live in PostgreSQL.
 - Every conversation stays pinned to its original commit. **Check for updates** indexes HEAD. If a newer commit is ready, **Start chat on latest** creates a separate conversation; existing answers keep their original sources. The version selector also lets you browse older conversation history.
 - File folders load on expansion. Excluded files are visibly unavailable; **Index coverage** shows exclusion counts. The source viewer displays bounded excerpts with navigation, and citation clicks highlight the exact stored line range. Extremely long single lines are explicitly shown as clipped.

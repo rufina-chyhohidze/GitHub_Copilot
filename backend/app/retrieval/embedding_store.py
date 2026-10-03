@@ -21,6 +21,10 @@ from app.tools.repository import RepositoryTools
 INPUT_VERSION = "code-context-v1"
 
 
+class EmbeddingBudgetExceeded(ValueError):
+    """A deterministic token-cap failure that retrying cannot resolve."""
+
+
 def profile(provider) -> dict:
     values = {
         "provider": provider.provider,
@@ -61,7 +65,7 @@ async def cached_vectors(engine, provider, texts: list[str], settings) -> tuple[
         )
     pending = [(digest, value) for digest, value in unique.items() if digest not in cached]
     if sum(provider.count_tokens(value) for _, value in pending) > settings.embedding_token_budget:
-        raise ValueError("Embedding request exceeds COPILOT_EMBEDDING_TOKEN_BUDGET")
+        raise EmbeddingBudgetExceeded("Embedding request exceeds COPILOT_EMBEDDING_TOKEN_BUDGET")
     usage = 0
     if pending:
         limits = UsageLimits(
@@ -147,7 +151,9 @@ async def _build_index(engine, snapshot_id, settings, provider, run_id):
         if input_hash(value) not in cached_hashes
     }
     if sum(missing.values()) > settings.embedding_token_budget:
-        raise ValueError("Index exceeds COPILOT_EMBEDDING_TOKEN_BUDGET before making API calls")
+        raise EmbeddingBudgetExceeded(
+            "Index exceeds COPILOT_EMBEDDING_TOKEN_BUDGET before making API calls"
+        )
     usage = generated = 0
     batches = []
     batch = []

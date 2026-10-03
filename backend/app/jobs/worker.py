@@ -20,7 +20,7 @@ from app.ingestion.scanner import index_version
 from app.ingestion.service import ingest
 from app.jobs.service import LeaseLost, claim, defer_busy, fail, heartbeat, publish
 from app.providers.embeddings import OpenAIEmbeddings
-from app.retrieval.embedding_store import build_index
+from app.retrieval.embedding_store import EmbeddingBudgetExceeded, build_index
 
 
 @contextmanager
@@ -129,6 +129,8 @@ def run_once(engine, settings, *, embedding_factory=OpenAIEmbeddings):
                 publish(
                     engine, job, job["snapshot_id"], job["parsing_run_id"], indexed["profile_id"]
                 )
+    except EmbeddingBudgetExceeded:
+        fail(engine, job, settings, "embedding_budget_exceeded", retry=False)
     except LeaseLost:
         pass  # A new owner controls retry and terminal state; stale workers cannot write either.
     except (ValueError, SQLAlchemyError, OSError):

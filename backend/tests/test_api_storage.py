@@ -124,3 +124,80 @@ def test_missing_provider_configuration_is_actionable(job_engine):
         )
         assert response.status_code == 503
         assert "Configure" in response.json()["error"]["message"]
+
+
+def test_repository_library_and_deletion_remove_only_target_data(
+    job_engine, job_settings, fake_ingestion
+):
+    from sqlalchemy import func, select
+
+    from app.conversations import worker as answer_worker
+    from app.db.schema import embeddings, messages, run_events, run_evidence
+
+    provider = TestEmbeddings()
+    app = create_app(job_settings, job_engine, embedding_factory=lambda _: provider)
+    with TestClient(app) as client:
+        ids = []
+        for name in ["delete-me", "keep-me"]:
+            item = client.post(
+                "/repositories", json={"url": f"https://github.com/example/{name}"}
+            ).json()
+            worker.run_once(job_engine, job_settings, embedding_factory=lambda _: provider)
+            ids.append((item, client.get(item["job_url"]).json()["snapshot_id"]))
+        target, sid = ids[0]
+        first = client.get("/repositories?limit=1").json()
+        second = client.get("/repositories?limit=1&offset=1").json()
+        assert first["next_offset"] == 1 and second["next_offset"] is None
+        assert {first["items"][0]["id"], second["items"][0]["id"]} == {
+            item[0]["repository_id"] for item in ids
+        }
+        cid = client.post(f"/snapshots/{sid}/conversations", json={}).json()["id"]
+        run = client.post(
+            f"/conversations/{cid}/messages",
+            json={"question": "authenticate"},
+            headers={"Idempotency-Key": "delete-test"},
+        ).json()
+        blocked = client.delete(f"/repositories/{target['repository_id']}")
+        assert blocked.status_code == 409
+        assert "answer is still active" in blocked.json()["error"]["message"]
+        answer_worker.run_once(
+            job_engine,
+            job_settings,
+            embedding_factory=lambda _: provider,
+            text_factory=lambda _: Model(),
+        )
+        with job_engine.connect() as connection:
+            assert connection.scalar(select(func.count()).select_from(run_evidence)) > 0
+        deleted = client.delete(f"/repositories/{target['repository_id']}")
+        assert deleted.status_code == 200, deleted.text
+        for path in [
+            f"/repositories/{target['repository_id']}",
+            f"/snapshots/{sid}",
+            f"/conversations/{cid}",
+            f"/runs/{run['run_id']}",
+            target["job_url"],
+        ]:
+            assert client.get(path).status_code == 404
+        assert client.delete(f"/repositories/{target['repository_id']}").status_code == 404
+        assert client.get("/repositories").json()["items"][0]["id"] == ids[1][0]["repository_id"]
+        assert client.get(f"/snapshots/{ids[1][1]}/files?path=auth.py").status_code == 200
+        with job_engine.connect() as connection:
+            for table in [messages, run_events, run_evidence]:
+                assert connection.scalar(select(func.count()).select_from(table)) == 0
+            assert connection.scalar(select(func.count()).select_from(embeddings)) > 0
+
+
+def test_repository_deletion_refuses_active_indexing(job_engine, job_settings, fake_ingestion):
+    from app.jobs.service import claim
+
+    app = create_app(job_settings, job_engine, embedding_factory=lambda _: TestEmbeddings())
+    with TestClient(app) as client:
+        item = client.post(
+            "/repositories", json={"url": "https://github.com/example/active"}
+        ).json()
+        path = f"/repositories/{item['repository_id']}"
+        assert client.delete(path).status_code == 409
+        claim(job_engine, job_settings)
+        assert client.delete(path).status_code == 409
+        assert client.get(path).status_code == 200
+        assert client.get(item["job_url"]).json()["status"] == "running"

@@ -19,6 +19,7 @@ from app.conversations.api import install as install_conversations
 from app.db.schema import index_jobs, repositories, repository_files, snapshots
 from app.db.session import make_engine
 from app.ingestion.clone import canonical_url, validate_ref
+from app.jobs.deletion import delete_repository
 from app.jobs.service import enqueue, public_job, ready_index
 from app.models.contracts import Contract
 from app.providers.embeddings import OpenAIEmbeddings
@@ -197,6 +198,33 @@ def create_app(
     def register(body: RepositoryRequest):
         with app.state.engine.begin() as connection:
             return submit(connection, body.url, body.ref)
+
+    @app.get("/repositories")
+    def list_repositories(
+        limit: int = Query(50, ge=1, le=100),
+        offset: int = Query(0, ge=0, le=1000000),
+    ):
+        with app.state.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(repositories)
+                    .order_by(repositories.c.created_at.desc(), repositories.c.id)
+                    .offset(offset)
+                    .limit(limit + 1)
+                )
+                .mappings()
+                .all()
+            )
+            return {
+                "items": [dict(row) for row in rows[:limit]],
+                "next_offset": offset + limit if len(rows) > limit else None,
+            }
+
+    @app.delete("/repositories/{repository_id}")
+    def remove_repository(repository_id: UUID):
+        with app.state.engine.begin() as connection:
+            delete_repository(connection, repository_id)
+        return {"deleted": True}
 
     @app.get("/repositories/{repository_id}")
     def repository(repository_id: UUID):

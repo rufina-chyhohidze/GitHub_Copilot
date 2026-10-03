@@ -353,14 +353,14 @@ test("homepage has a right-hand link form, dynamic preview, and clear instructio
 }) => {
   await page.goto("/");
   const heading = page.getByRole("heading", {
-    name: "Every repository has a story. Find your way in.",
+    name: /Don’t judge a repo.*by its cover.*Look inside/,
   });
   await expect(heading).toBeVisible();
   const story = await page.locator(".home-story").boundingBox();
   const form = await page.locator(".start-card").boundingBox();
   expect(form!.x).toBeGreaterThan(story!.x + story!.width);
   await expect(
-    page.getByRole("heading", { name: "From link to understanding." }),
+    page.getByRole("heading", { name: /Go from a link.*lightbulb moment/ }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Preview step 2: Ask what matters" })
@@ -432,4 +432,249 @@ test("queued retries and expired worker leases do not look like active parsing",
       exact: false,
     }),
   ).toBeVisible();
+});
+
+test("landing cursor, overscroll message, and reduced motion work", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.mouse.move(160, 220);
+  await expect(page.locator(".cursor-halo")).toHaveCSS("opacity", "1");
+  await page.getByRole("button", { name: "Pause illustration" }).click();
+  await expect(page.locator(".orbit-two")).toHaveCSS(
+    "animation-play-state",
+    "paused",
+  );
+  await page
+    .getByRole("button", { name: "Preview step 3: Follow the evidence" })
+    .click();
+  await expect(page.locator(".demo-code")).toBeVisible();
+  await page.evaluate(() =>
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "instant",
+    }),
+  );
+  await page.mouse.wheel(0, 180);
+  await expect(
+    page.getByText("You’ve reached the bottom.", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Dismiss bottom message" }).click();
+  await expect(page.locator(".bottom-toast")).toHaveCount(0);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(page.locator(".cursor-halo")).toBeHidden();
+  await expect(page.locator(".orbit-two")).toHaveCSS("animation-name", "none");
+});
+
+test("runner supports jumping, pause, collision, restart, and indexing completion", async ({
+  page,
+}) => {
+  await openRepository(page);
+  const address = new URL(page.url());
+  const jobId = randomUUID();
+  let status = "running";
+  await page.route(`**/index-jobs/${jobId}`, (route) =>
+    route.fulfill({
+      json: {
+        id: jobId,
+        repository_id: address.searchParams.get("repository"),
+        snapshot_id: address.searchParams.get("snapshot"),
+        status,
+        stage: "parsing",
+        progress: 40,
+        attempts: 1,
+        lease_expires_at: "2099-01-01T00:00:00Z",
+        error: null,
+      },
+    }),
+  );
+  address.searchParams.set("job", jobId);
+  await page.goto(address.toString());
+  await page.getByRole("button", { name: "Play Repo Runner" }).click();
+  const arena = page.getByRole("group", { name: "Repo Runner game" });
+  await expect(arena).toBeFocused();
+  await arena.press("Space");
+  await expect
+    .poll(() =>
+      page
+        .locator(".runner-character")
+        .evaluate((el) => parseFloat(getComputedStyle(el).bottom)),
+    )
+    .toBeGreaterThan(40);
+  await arena.press("Escape");
+  await expect(page.getByRole("button", { name: "Resume game" })).toBeVisible();
+  await page.screenshot({
+    path: "test-results/runner-desktop.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Resume game" }).click();
+  await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+  expect(
+    await page.evaluate(() =>
+      Number(localStorage.getItem("copilot-runner-best")),
+    ),
+  ).toBeGreaterThan(0);
+  await page.getByRole("button", { name: "Try again" }).click();
+  await expect(page.getByRole("button", { name: "Pause game" })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await arena.dispatchEvent("pointerdown", { pointerType: "touch" });
+  await expect
+    .poll(() =>
+      page
+        .locator(".runner-character")
+        .evaluate((el) => parseFloat(getComputedStyle(el).bottom)),
+    )
+    .toBeGreaterThan(40);
+  await arena.press("Escape");
+  const { default: AxeBuilder } = await import("@axe-core/playwright");
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: "test-results/runner-mobile.png",
+    fullPage: true,
+  });
+  status = "succeeded";
+  await expect(page.locator(".runner")).toHaveCount(0);
+  await expect(
+    page.getByRole("textbox", { name: "Ask a question about this repository" }),
+  ).toBeEnabled();
+});
+
+test("composer stays fully visible with a tall file tree, without scrolling the page", async ({
+  page,
+}) => {
+  await openRepository(page);
+  // Reproduce a real repository whose file/history content is taller than the grid.
+  await page.locator(".file-tree").evaluate((element) => {
+    const list = document.createElement("div");
+    list.style.height = "1400px";
+    list.textContent = "Long repository file listing";
+    element.append(list);
+  });
+  for (const viewport of [
+    { width: 1440, height: 800 },
+    { width: 1366, height: 650 },
+    { width: 1024, height: 600 },
+    { width: 390, height: 667 },
+  ]) {
+    await page.setViewportSize(viewport);
+    // Do not let Playwright auto-scroll the composer into view before measuring it.
+    await expect
+      .poll(async () => {
+        return page.locator(".composer").evaluate((element) => {
+          const rect = element.getBoundingClientRect();
+          const grid = document
+            .querySelector(".workspace-grid")!
+            .getBoundingClientRect();
+          return (
+            rect.top >= grid.top &&
+            rect.bottom <= Math.min(grid.bottom, innerHeight)
+          );
+        });
+      })
+      .toBe(true);
+    for (const control of [
+      page.getByRole("combobox", { name: "Answer mode" }),
+      page.getByRole("button", { name: "Send question" }),
+    ]) {
+      await expect(control).toBeInViewport({ ratio: 1 });
+      expect(
+        await control.evaluate((element) => {
+          const r = element.getBoundingClientRect();
+          return element.contains(
+            document.elementFromPoint(r.x + r.width / 2, r.bottom - 2),
+          );
+        }),
+      ).toBe(true);
+    }
+    await page.screenshot({
+      path: `test-results/composer-${viewport.width}-${viewport.height}.png`,
+    });
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  }
+  await page
+    .getByRole("combobox", { name: "Answer mode" })
+    .selectOption("agent");
+  await ask(page);
+  await expect(
+    page.getByText("Authentication returns the token.", { exact: true }),
+  ).toBeVisible();
+});
+
+test("homepage library reopens repositories and confirms permanent deletion", async ({
+  page,
+  request,
+}) => {
+  await openRepository(page);
+  await ask(page);
+  await expect(
+    page.getByText("Authentication returns the token.", { exact: true }),
+  ).toBeVisible();
+  const address = new URL(page.url());
+  const repositoryId = address.searchParams.get("repository")!;
+  const conversationId = address.searchParams.get("conversation")!;
+  await page.getByRole("button", { name: "GitHub Copilot home" }).click();
+  await page
+    .getByRole("link", { name: "My repositories", exact: true })
+    .click();
+  const library = page.getByRole("region", { name: "My repositories" });
+  const repo = (
+    await (await request.get(`/api/repositories/${repositoryId}`)).json()
+  ).canonical_url.replace("https://github.com/", "");
+  await library
+    .getByRole("button", { name: `Open ${repo}`, exact: true })
+    .click();
+  await expect(page.getByText("Saved commit", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Delete saved repository" }).click();
+  const dialog = page.getByRole("dialog", { name: "Delete saved repository?" });
+  await expect(dialog).toContainText(repo);
+  await expect(
+    dialog.getByRole("button", { name: "Keep repository" }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await page.getByRole("button", { name: "GitHub Copilot home" }).click();
+  await library
+    .getByRole("button", { name: `Delete ${repo}`, exact: true })
+    .click();
+  const { default: AxeBuilder } = await import("@axe-core/playwright");
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await dialog
+    .getByRole("button", { name: "Delete repository", exact: true })
+    .click();
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    library.getByRole("button", { name: `Open ${repo}`, exact: true }),
+  ).toHaveCount(0);
+  expect(
+    (await request.get(`/api/repositories/${repositoryId}`)).status(),
+  ).toBe(404);
+  expect(
+    (await request.get(`/api/conversations/${conversationId}`)).status(),
+  ).toBe(404);
+  await page.reload();
+  await expect(
+    library.getByRole("button", { name: `Open ${repo}`, exact: true }),
+  ).toHaveCount(0);
+  const crossOrigin = await request.delete(
+    `/api/repositories/${repositoryId}`,
+    { headers: { Origin: "https://unrelated.example" } },
+  );
+  expect(crossOrigin.status()).toBe(403);
 });

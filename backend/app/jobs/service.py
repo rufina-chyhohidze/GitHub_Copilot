@@ -205,6 +205,17 @@ def heartbeat(engine, job, settings, **values):
 
 
 def fail(engine, job, settings, code, *, retry=True):
+    # Only allowlisted messages reach the API; never expose raw provider exceptions.
+    message = {
+        "embedding_budget_exceeded": (
+            "This repository exceeds the configured indexing token limit. "
+            "Raise the limit in server settings, restart the API, then retry indexing."
+        ),
+        "pipeline_changed": (
+            "The indexing configuration changed since this job was created. "
+            "Retry indexing to create a job using the current configuration."
+        ),
+    }.get(code, "Indexing failed; inspect the stage and retry configuration.")
     with engine.begin() as connection:
         terminal = not retry or job["attempts"] >= job["max_attempts"]
         return (
@@ -221,7 +232,7 @@ def fail(engine, job, settings, code, *, retry=True):
                     finished_at=func.clock_timestamp() if terminal else None,
                     error={
                         "code": code,
-                        "message": "Indexing failed; inspect the stage and retry configuration.",
+                        "message": message,
                     },
                 )
             ).rowcount

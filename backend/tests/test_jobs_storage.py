@@ -255,3 +255,27 @@ def test_configuration_has_no_secrets_and_changed_pipeline_requires_resubmission
     worker.run_once(job_engine, job_settings, embedding_factory=lambda _: TestEmbeddings())
     assert get_job(job_engine, job)["error"]["code"] == "pipeline_changed"
     assert get_job(job_engine, job)["status"] == "failed"
+
+
+def test_embedding_budget_stops_without_retries_or_provider_calls(
+    job_engine, job_settings, fake_ingestion
+):
+    settings = job_settings.model_copy(update={"embedding_token_budget": 1})
+    job = submit(job_engine, settings)
+    provider = TestEmbeddings()
+    worker.run_once(job_engine, settings, embedding_factory=lambda _: provider)
+    failed = get_job(job_engine, job)
+    assert failed["status"] == "failed"
+    assert failed["stage"] == "embedding"
+    assert failed["attempts"] == 1
+    assert failed["error"]["code"] == "embedding_budget_exceeded"
+    assert "indexing token limit" in failed["error"]["message"]
+    assert provider.calls == 0
+    assert worker.run_once(job_engine, settings, embedding_factory=lambda _: provider) is None
+    with job_engine.connect() as conn:
+        assert conn.execute(select(ready_indexes)).first() is None
+
+    # A fresh job takes the updated budget and can reuse the saved source.
+    replacement = submit(job_engine, job_settings)
+    worker.run_once(job_engine, job_settings, embedding_factory=lambda _: provider)
+    assert get_job(job_engine, replacement)["status"] == "succeeded"

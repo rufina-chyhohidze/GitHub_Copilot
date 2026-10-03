@@ -4,7 +4,6 @@ import {
   Check,
   ChevronRight,
   CircleHelp,
-  Code2,
   ExternalLink,
   FileCode2,
   GitBranch,
@@ -16,6 +15,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { allPages, api, errorText, post, recall, store } from "@/lib/api";
@@ -28,6 +28,11 @@ import type {
 } from "@/lib/types";
 import { Chat } from "./chat";
 import { Home } from "./home";
+import {
+  DeleteRepositoryDialog,
+  type SavedRepository,
+} from "./repository-library";
+import { RepoRunner } from "./repo-runner";
 import { CodeViewer, FileTree } from "./files";
 
 type Location = {
@@ -67,6 +72,43 @@ export default function Workspace() {
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const [mobile, setMobile] = useState("chat");
+  const [deleteTarget, setDeleteTarget] = useState<SavedRepository | null>(
+    null,
+  );
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [libraryVersion, setLibraryVersion] = useState(0);
+  const deleteInFlight = useRef(false);
+  function requestDelete(item: SavedRepository) {
+    setDeleteError("");
+    setDeleteTarget(item);
+  }
+  async function confirmDelete() {
+    if (!deleteTarget || deleteInFlight.current) return;
+    deleteInFlight.current = true;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      await api(`/repositories/${deleteTarget.id}`, { method: "DELETE" });
+      setRecent((items) => {
+        const next = items.filter((item) => item.id !== deleteTarget.id);
+        store("repositories", next);
+        return next;
+      });
+      if (
+        repository?.id === deleteTarget.id ||
+        location.repository === deleteTarget.id
+      )
+        navigate({});
+      setLibraryVersion((value) => value + 1);
+      setDeleteTarget(null);
+    } catch (reason) {
+      setDeleteError(errorText(reason));
+    } finally {
+      deleteInFlight.current = false;
+      setDeleting(false);
+    }
+  }
   const epoch = useRef(0);
   const operation = useRef(false);
   function navigate(next: Location) {
@@ -284,7 +326,18 @@ export default function Workspace() {
   const indexing = job && !["succeeded", "failed"].includes(job.status);
   const excluded = snapshot?.coverage.excluded_by_reason || {};
   return (
-    <div className="app-shell">
+    <div
+      className={`app-shell ${!location.repository && !location.conversation ? "landing-shell" : ""}`}
+    >
+      {deleteTarget && (
+        <DeleteRepositoryDialog
+          repository={deleteTarget}
+          busy={deleting}
+          error={deleteError}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={() => void confirmDelete()}
+        />
+      )}
       <a href="#workspace-main" className="skip-link">
         Skip to workspace
       </a>
@@ -292,13 +345,13 @@ export default function Workspace() {
         <button
           className="brand"
           onClick={() => navigate({})}
-          aria-label="Repository Copilot home"
+          aria-label="GitHub Copilot home"
         >
           <span className="brand-symbol">
-            <Code2 size={23} />
+            <Github size={23} />
           </span>
           <span>
-            repository<span className="brand-sub">COPILOT</span>
+            GitHub<span className="brand-sub">COPILOT</span>
           </span>
         </button>
         <button className="add-repo" onClick={() => navigate({})}>
@@ -387,6 +440,9 @@ export default function Workspace() {
               setBranch={setRef}
               busy={busy}
               onSubmit={register}
+              libraryVersion={libraryVersion}
+              onOpenRepository={(id) => navigate({ repository: id })}
+              onDeleteRepository={requestDelete}
             />
           )}
           {repository && !loading && (
@@ -402,16 +458,32 @@ export default function Workspace() {
                     Explore the code. Ask better questions. Follow the evidence.
                   </p>
                 </div>
-                <button
-                  className="secondary"
-                  disabled={busy || !!indexing}
-                  onClick={() => void reindex()}
-                >
-                  <RefreshCw size={14} />
-                  {job?.status === "failed"
-                    ? "Retry indexing"
-                    : "Check for updates"}
-                </button>
+                <div className="repo-actions">
+                  <button
+                    className="secondary repo-delete"
+                    onClick={() =>
+                      requestDelete({
+                        id: repository.id,
+                        name: shortName(repository.canonical_url),
+                      })
+                    }
+                    aria-label="Delete saved repository"
+                    title="Delete saved repository"
+                  >
+                    <Trash2 size={15} />
+                    <span>Delete</span>
+                  </button>
+                  <button
+                    className="secondary"
+                    disabled={busy || !!indexing}
+                    onClick={() => void reindex()}
+                  >
+                    <RefreshCw size={14} />
+                    {job?.status === "failed"
+                      ? "Retry indexing"
+                      : "Check for updates"}
+                  </button>
+                </div>
               </section>
               {job && (
                 <div
@@ -463,6 +535,7 @@ export default function Workspace() {
                   )}
                 </div>
               )}
+              {indexing && <RepoRunner key={job.id} />}
               {snapshot && (
                 <>
                   <div className="snapshot-bar">
@@ -685,23 +758,6 @@ export default function Workspace() {
                       ? "Retry indexing to prepare a searchable snapshot."
                       : "No ready version is available yet. Check for updates to start indexing."}
                   </p>
-                </div>
-              )}
-              {indexing && !snapshot && (
-                <div className="waiting-empty">
-                  <div className="scan-illustration">
-                    <FileCode2 size={36} />
-                    <span />
-                  </div>
-                  <h2>Getting to know the repository.</h2>
-                  <p>
-                    Saving the commit, reading the files, and preparing a
-                    searchable index.
-                  </p>
-                  <span className="muted">
-                    Queued for a while? Make sure the indexing worker is
-                    running.
-                  </span>
                 </div>
               )}
             </>

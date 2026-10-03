@@ -52,6 +52,8 @@ curl -sS http://127.0.0.1:8000/snapshots/SNAPSHOT_ID/ask \
 | `GET /health` | Database connectivity |
 | `POST /repositories` | Validate a public GitHub URL and optional ref; queue indexing |
 | `GET /repositories/{id}` | Repository identity and latest/latest-ready snapshot IDs |
+| `GET /repositories` | Paginated saved repository library (`limit`, `offset`) |
+| `DELETE /repositories/{id}` | Atomically remove local repository data; 409 while indexing or answers are active |
 | `POST /repositories/{id}/index` | Queue another optional ref; JSON body `{}` defaults to HEAD |
 | `GET /index-jobs/{id}` | Persisted progress and outcome |
 | `GET /repositories/{id}/snapshots` | Paginated snapshot metadata and coverage |
